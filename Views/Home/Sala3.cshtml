@@ -1,0 +1,48 @@
+@{
+    ViewData["Title"] = "Nivel 1: Ciudad de Éfere";
+}
+
+<link rel="stylesheet" href="~/css/sala1.css">
+
+<div class="container">
+    <h1>🏛️ Nivel 1: Ciudad de Éfere</h1>
+    <p>Jugador: <strong>@ViewBag.NombreParticipante</strong></p>
+
+    <!-- ENCUENTRO 1: MEDEA -->
+    <div id="enc1" class="encuentro">
+        <h2>⚗️ Encuentro 1: Medea la Bruja</h2>
+        <p>Un caldero brumoso bloquea el camino. Resuelve: combina P → M → E</p>
+        
+        <button id="btnP">✨ Phosphorus</button>
+        <button id="btnM">🌙 Moon</button>
+        <button id="btnE">💨 Ether</button>
+        
+        <p>Tu combinación: <span id="combo">-</span></p>
+        
+        <button id="btnCheck" class="btn-action">Activar</button>
+        <button id="btnReset" class="btn-reset">Limpiar</button>
+        
+        <div id="msg1" class="mensaje"></div>
+    </div>
+
+    <!-- ENCUENTRO DE JEFE: POLIFEMO -->
+    <div id="enc2" class="encuentro hidden">
+        <h2>👁️ Encuentro de Jefe: Polifemo el Cíclope</h2>
+        <p>Mueve las ovejas a los interruptores en orden: 🟢 → 🟠 → 🔴</p>
+        
+        <div id="board"></div>
+        
+        <button id="btnVerify" class="btn-action">Verificar</button>
+        <button id="btnReload" class="btn-reset">Reintentar</button>
+        
+        <div id="msg2" class="mensaje"></div>
+    </div>
+
+    <!-- COMPLETO -->
+    <div id="complete" class="hidden">
+        <h2>🎉 ¡Nivel Completado!</h2>
+        <p>¡Escapaste de Éfere! La llave de los muelles es tuya.</p>
+    </div>
+</div>
+
+<script src="~/js/sala1.js"></script>

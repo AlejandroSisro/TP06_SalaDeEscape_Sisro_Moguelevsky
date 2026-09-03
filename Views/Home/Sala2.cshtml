@@ -1,0 +1,101 @@
+@{
+    ViewData["Title"] = "Encuentro Aliado - Medea";
+}
+
+<div class="medea-scene">
+    <div class="scene-header">
+        <h1>Encuentro Aliado</h1>
+        <p>Un callejón brumoso, un caldero ancestral y la promesa de una maldición que salva la vida.</p>
+    </div>
+
+    <div class="scene-content">
+        <div>
+            <div class="story-panel">
+                <div class="location-tag">Callejón Brumoso</div>
+                <h2>El aire de la superficie</h2>
+                <p>
+                    La niebla cubre el camino y Medea aparece junto al caldero. Ella ofrece una maldición beneficiosa para poder sobrevivir al aire de la superficie.
+                    Pero antes de dejarte avanzar, exige que actives el ritual con el orden correcto de los ingredientes.
+                </p>
+            </div>
+
+            <div class="puzzle-panel">
+                <h2>Acertijo alquímico</h2>
+                <p>Elegí los tres ingredientes en el orden correcto para purificar la niebla.</p>
+
+                <form method="post" action="/Home/Medea">
+                    <div class="form-row">
+                        <label for="ingrediente1">1. Ingrediente inicial</label>
+                        <select id="ingrediente1" name="ingrediente1" class="ingredient-select">
+                            <option value="">Seleccioná</option>
+                            <option value="Bronce">Bronce</option>
+                            <option value="Hierro">Hierro</option>
+                            <option value="Ajo">Ajo</option>
+                            <option value="Musgo">Musgo</option>
+                            <option value="Adamanto">Adamanto</option>
+                            <option value="Colmillos">Colmillos</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="ingrediente2">2. Ingrediente central</label>
+                        <select id="ingrediente2" name="ingrediente2" class="ingredient-select">
+                            <option value="">Seleccioná</option>
+                            <option value="Bronce">Bronce</option>
+                            <option value="Hierro">Hierro</option>
+                            <option value="Ajo">Ajo</option>
+                            <option value="Musgo">Musgo</option>
+                            <option value="Adamanto">Adamanto</option>
+                            <option value="Colmillos">Colmillos</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="ingrediente3">3. Ingrediente final</label>
+                        <select id="ingrediente3" name="ingrediente3" class="ingredient-select">
+                            <option value="">Seleccioná</option>
+                            <option value="Bronce">Bronce</option>
+                            <option value="Hierro">Hierro</option>
+                            <option value="Ajo">Ajo</option>
+                            <option value="Musgo">Musgo</option>
+                            <option value="Adamanto">Adamanto</option>
+                            <option value="Colmillos">Colmillos</option>
+                        </select>
+                    </div>
+
+                    <div class="cauldron">
+                        <h3>Caldero de Medea</h3>
+                        <div class="status">Estado: la niebla se vuelve más densa con cada segundo.</div>
+                        <button type="submit">Activar purificación</button>
+                    </div>
+                </form>
+
+                @if (ViewBag.Mensaje != null && ViewBag.Mensaje.ToString() != "")
+                {
+                    if (ViewBag.Correcto == true)
+                    {
+                        <div class="resultado correcto">
+                            @ViewBag.Mensaje
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="resultado error">
+                            @ViewBag.Mensaje
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <aside class="character-panel">
+            <div class="character-frame">
+                <img src="~/Imagenes/Personajes/Medea.jpg" alt="Medea" />
+                <div class="character-name">Medea</div>
+                <div class="char-role">Bruja del Callejón</div>
+            </div>
+
+            <div class="dialogue-box">
+                <p><strong>Medea:</strong> "No temáis al aire limpio. No temáis a la noche. El orden debe ser preciso: La aleacion metalica primero, luego el metal de los dioses, y finalmente la recompenza por matar a un temible monstruo. Así la niebla caerá y el camino abrirá."</p>
+            </div>
+        </aside>
+    </div>
+</div>
