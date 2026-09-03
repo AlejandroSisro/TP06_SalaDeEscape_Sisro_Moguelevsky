@@ -1,101 +1,236 @@
-using Microsoft.Data.SqlClient;
+using System.Diagnostics;
 using Dapper;
-using System.Collections.Generic;
-using System.Linq;
+using Escape.Models;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Escape.Models
+namespace Escape.Controllers;
+
+public class HomeController : Controller
 {
-    public class BD
+    private readonly IConfiguration _configuration;
+
+    public HomeController(IConfiguration configuration)
     {
-        private string _connectionString = @"Server=.;Database=EscapeDB;User Id=alumno;Password=123456;TrustServerCertificate=True;";
+        _configuration = configuration;
+    }
 
-        public List<Usuario> ObtenerTodosLosUsuarios()
+    public IActionResult Index()
+    {
+        return View();
+    }
+
+    public IActionResult Privacy()
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult Login()
+    {
+        string usuario = HttpContext.Session.GetString("Usuario");
+        if (usuario != null && usuario != "")
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                string query = "SELECT Id, nombreUsuario, contraseña, nombre, apellido, ISNULL(IdBendicion,0) AS IdBendicion, ISNULL(IdMaldicion,0) AS IdMaldicion, ISNULL(Sala,1) AS Sala FROM Usuario";
-                return connection.Query<Usuario>(query).ToList();
-            }
+            return RedirectToAction("Sala", new { id = 1 });
         }
 
-        public Usuario ObtenerUsuarioPorNombre(string nombreUsuario)
-        {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                string query = @"SELECT Id, nombreUsuario, contraseña, nombre, apellido, ISNULL(IdBendicion,0) AS IdBendicion, ISNULL(IdMaldicion,0) AS IdMaldicion, ISNULL(Sala,1) AS Sala FROM Usuario 
-                                 WHERE nombreUsuario = @pNombreUsuario";
-                return connection.QueryFirstOrDefault<Usuario>(query, new { pNombreUsuario = nombreUsuario });
-            }
-        }
+        return View("Login");
+    }
 
-        public bool ValidarCredenciales(string nombreUsuario, string contraseña)
+    [HttpPost]
+    public IActionResult Login(string usuario, string contraseña, string sala)
+    {
+        if (usuario != null && usuario != "" && contraseña != null && contraseña != "")
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                string query = @"SELECT Id, nombreUsuario, contraseña, nombre, apellido, ISNULL(IdBendicion,0) AS IdBendicion, ISNULL(IdMaldicion,0) AS IdMaldicion, ISNULL(Sala,1) AS Sala FROM Usuario 
-                                 WHERE nombreUsuario = @pNombreUsuario 
-                                 AND contraseña = @pContraseña";
-                Usuario usuario = connection.QueryFirstOrDefault<Usuario>(query, new { pNombreUsuario = nombreUsuario, pContraseña = contraseña });
-                return usuario != null;
-            }
-        }
+            BD bd = new BD();
 
-        public void RegistrarUsuario(Usuario usuario)
-        {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                string query = @"INSERT INTO Usuario 
-                                 (nombreUsuario, contraseña, nombre, apellido, IdBendicion, IdMaldicion, Sala) 
-                                 VALUES 
-                                 (@pNombreUsuario, @pContraseña, @pNombre, @pApellido, @pIdBendicion, @pIdMaldicion, @pSala)";
+            Usuario existente = bd.ObtenerUsuarioPorNombre(usuario);
 
-                connection.Execute(query, new
+            int salaNumero = 1;
+            if (sala != null && sala != "")
+            {
+                int.TryParse(sala, out salaNumero);
+                if (salaNumero <= 0)
                 {
-                    pNombreUsuario = usuario.nombreUsuario,
-                    pContraseña = usuario.contraseña,
-                    pNombre = usuario.nombre,
-                    pApellido = usuario.apellido,
-                    pIdBendicion = usuario.IdBendicion == 0 ? (object)DBNull.Value : usuario.IdBendicion,
-                    pIdMaldicion = usuario.IdMaldicion == 0 ? (object)DBNull.Value : usuario.IdMaldicion,
-                    pSala = usuario.Sala
-                });
+                    salaNumero = 1;
+                }
             }
-        }
 
-        public void ActualizarUsuario(Usuario usuario)
-        {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            if (existente == null)
             {
-                string query = @"UPDATE Usuario 
-                                 SET contraseña = @pContraseña,
-                                     nombre = @pNombre,
-                                     apellido = @pApellido,
-                                     IdBendicion = @pIdBendicion,
-                                     IdMaldicion = @pIdMaldicion,
-                                     Sala = @pSala
-                                 WHERE nombreUsuario = @pNombreUsuario";
+                Usuario nuevo = new Usuario();
+                nuevo.nombreUsuario = usuario;
+                nuevo.contraseña = contraseña;
+                nuevo.nombre = "";
+                nuevo.apellido = "";
+                nuevo.IdBendicion = 0;
+                nuevo.IdMaldicion = 0;
+                nuevo.Sala = salaNumero;
 
-                connection.Execute(query, new
+                bd.RegistrarUsuario(nuevo);
+            }
+            else
+            {
+                bool valido = bd.ValidarCredenciales(usuario, contraseña);
+                if (valido == false)
                 {
-                    pNombreUsuario = usuario.nombreUsuario,
-                    pContraseña = usuario.contraseña,
-                    pNombre = usuario.nombre,
-                    pApellido = usuario.apellido,
-                    pIdBendicion = usuario.IdBendicion == 0 ? (object)DBNull.Value : usuario.IdBendicion,
-                    pIdMaldicion = usuario.IdMaldicion == 0 ? (object)DBNull.Value : usuario.IdMaldicion,
-                    pSala = usuario.Sala
-                });
+                    ViewBag.Error = "Usuario o contraseña inválidos";
+                    return View("Login");
+                }
+
+                existente.Sala = salaNumero;
+                bd.ActualizarUsuario(existente);
             }
+
+            HttpContext.Session.SetString("Usuario", usuario);
+            HttpContext.Session.SetString("SalaActual", salaNumero.ToString());
+
+            return RedirectToAction("Sala", new { id = 1 });
         }
 
-        public void EliminarUsuario(string nombreUsuario)
+        ViewBag.Error = "Usuario o contraseña inválidos";
+        return View("Login");
+    }
+
+    [HttpGet]
+    public IActionResult Medea()
+    {
+        ViewBag.Mensaje = "";
+        ViewBag.Correcto = false;
+        return View("Sala2");
+    }
+
+    [HttpPost]
+    public IActionResult Medea(string ingrediente1, string ingrediente2, string ingrediente3)
+    {
+        bool correcto = ingrediente1 == "Bronce" && ingrediente2 == "Adamanto" && ingrediente3 == "Colmillos";
+
+        if (correcto)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                string query = @"DELETE FROM Usuario 
-                                 WHERE nombreUsuario = @pNombreUsuario";
-                connection.Execute(query, new { pNombreUsuario = nombreUsuario });
-            }
+            ViewBag.Mensaje = "Has purificado la niebla. El camino está libre.";
+            ViewBag.Correcto = true;
         }
+        else
+        {
+            ViewBag.Mensaje = "El orden es incorrecto. Intenta de nuevo.";
+            ViewBag.Correcto = false;
+        }
+
+        return View("Sala2");
+    }
+
+    [HttpGet]
+    public IActionResult Sala(int id)
+    {
+        int partidaId = HttpContext.Session.GetString("PartidaId");
+
+        if (partidaId == null || partidaId == "")
+        {
+            return RedirectToAction("Index");
+        }
+
+        int idPartida = 0;
+        int.TryParse(partidaId, out idPartida);
+
+        using int connection = GetConnection();
+
+        int partida = connection.QuerySingleOrDefault<dynamic>(
+            @"
+            SELECT p.Id, p.NombreParticipante, pr.SalaActual
+            FROM Partidas p
+            LEFT JOIN Progresos pr ON pr.PartidaId = p.Id
+            WHERE p.Id = @Id
+            ",
+            new { Id = idPartida }
+        );
+
+        if (partida == null)
+        {
+            return RedirectToAction("Error");
+        }
+
+        if (partida.SalaActual != null && (int)partida.SalaActual != id)
+        {
+            return RedirectToAction("Error");
+        }
+
+        HttpContext.Session.SetString("SalaActual", id.ToString());
+        ViewBag.NombreParticipante = partida.NombreParticipante;
+        ViewBag.SalaActual = id;
+
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult ResponderSala(int id, string respuesta)
+    {
+        var partidaId = HttpContext.Session.GetString("PartidaId");
+
+        if (partidaId == null || partidaId == "")
+        {
+            return RedirectToAction("Index");
+        }
+
+        int idPartida = 0;
+        int.TryParse(partidaId, out idPartida);
+
+        using var connection = GetConnection();
+
+        var partida = connection.QuerySingleOrDefault<dynamic>(
+            @"
+            SELECT p.Id, pr.SalaActual
+            FROM Partidas p
+            LEFT JOIN Progresos pr ON pr.PartidaId = p.Id
+            WHERE p.Id = @Id
+            ",
+            new { Id = idPartida }
+        );
+
+        if (partida == null)
+        {
+            return RedirectToAction("Error");
+        }
+
+        if (partida.SalaActual != null && (int)partida.SalaActual != id)
+        {
+            return RedirectToAction("Error");
+        }
+
+        connection.Execute(
+            @"
+            UPDATE Progresos
+            SET SalaActual = @SalaActual,
+                UltimaRespuesta = @Respuesta,
+                FechaActualizacion = GETDATE()
+            WHERE PartidaId = @PartidaId;
+
+            IF @@ROWCOUNT = 0
+            BEGIN
+                INSERT INTO Progresos (PartidaId, SalaActual, UltimaRespuesta, FechaActualizacion)
+                VALUES (@PartidaId, @SalaActual, @Respuesta, GETDATE());
+            END;
+            ",
+            new
+            {
+                PartidaId = idPartida,
+                SalaActual = id,
+                Respuesta = respuesta
+            }
+        );
+
+        HttpContext.Session.SetString("SalaActual", id.ToString());
+
+        return RedirectToAction("Sala", new { id });
+    }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+
+    private SqlConnection GetConnection()
+    {
+        var connectionString = _configuration.GetConnectionString("DefaultConnection");
+        return new SqlConnection(connectionString);
     }
 }
