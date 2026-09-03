@@ -13,7 +13,7 @@ namespace Escape.Models
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = "SELECT * FROM Usuario";
+                string query = "SELECT Id, nombreUsuario, contraseña, nombre, apellido, ISNULL(IdBendicion,0) AS IdBendicion, ISNULL(IdMaldicion,0) AS IdMaldicion, ISNULL(Sala,1) AS Sala FROM Usuario";
                 return connection.Query<Usuario>(query).ToList();
             }
         }
@@ -22,7 +22,7 @@ namespace Escape.Models
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = @"SELECT * FROM Usuario 
+                string query = @"SELECT Id, nombreUsuario, contraseña, nombre, apellido, ISNULL(IdBendicion,0) AS IdBendicion, ISNULL(IdMaldicion,0) AS IdMaldicion, ISNULL(Sala,1) AS Sala FROM Usuario 
                                  WHERE nombreUsuario = @pNombreUsuario";
                 return connection.QueryFirstOrDefault<Usuario>(query, new { pNombreUsuario = nombreUsuario });
             }
@@ -32,7 +32,7 @@ namespace Escape.Models
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = @"SELECT * FROM Usuario 
+                string query = @"SELECT Id, nombreUsuario, contraseña, nombre, apellido, ISNULL(IdBendicion,0) AS IdBendicion, ISNULL(IdMaldicion,0) AS IdMaldicion, ISNULL(Sala,1) AS Sala FROM Usuario 
                                  WHERE nombreUsuario = @pNombreUsuario 
                                  AND contraseña = @pContraseña";
                 Usuario usuario = connection.QueryFirstOrDefault<Usuario>(query, new { pNombreUsuario = nombreUsuario, pContraseña = contraseña });
@@ -55,8 +55,8 @@ namespace Escape.Models
                     pContraseña = usuario.contraseña,
                     pNombre = usuario.nombre,
                     pApellido = usuario.apellido,
-                    pIdBendicion = usuario.IdBendicion,
-                    pIdMaldicion = usuario.IdMaldicion,
+                    pIdBendicion = usuario.IdBendicion == 0 ? (object)DBNull.Value : usuario.IdBendicion,
+                    pIdMaldicion = usuario.IdMaldicion == 0 ? (object)DBNull.Value : usuario.IdMaldicion,
                     pSala = usuario.Sala
                 });
             }
@@ -81,8 +81,8 @@ namespace Escape.Models
                     pContraseña = usuario.contraseña,
                     pNombre = usuario.nombre,
                     pApellido = usuario.apellido,
-                    pIdBendicion = usuario.IdBendicion,
-                    pIdMaldicion = usuario.IdMaldicion,
+                    pIdBendicion = usuario.IdBendicion == 0 ? (object)DBNull.Value : usuario.IdBendicion,
+                    pIdMaldicion = usuario.IdMaldicion == 0 ? (object)DBNull.Value : usuario.IdMaldicion,
                     pSala = usuario.Sala
                 });
             }
