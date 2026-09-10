@@ -1,48 +1,139 @@
 @{
-    ViewData["Title"] = "Nivel 1: Ciudad de Éfere";
+    ViewData["Title"] = "Encuentro de Jefe - Polifemo";
 }
 
-<link rel="stylesheet" href="~/css/sala1.css">
+<div class="scene">
+    <div class="scene-header">
+        <h1>Encuentro de Jefe</h1>
+        <p>Un rebaño enorme, lana por todas partes, y las ruinas causadas por la furia ciega de un gran Ciclope</p>
+    </div>
+    <div class="dialogue-section">
+        <h2>Encuentro</h2>
+        <div class="dialogue-exchange">
+            <div class="character-dialogue">
+                <div class="char-name">Odiseo:</div>
+                <p>"Quietud, camarada. Ahí está nuestro obstáculo... el pastor ciego. Mantenete fuera de su alcance y no hagas ruido con las armas; su oído es tan agudo como su hambre."</p>
+            </div>
+            
+            <div class="character-dialogue">
+                <div class="char-name">Polifemo:</div>
+                <p>"¿Quién anda ahí? ¡Esa voz...! ¡Sos vos, Nadie! ¡Maldito seas! Huelo a tus esbirros y a la sangre de esa bruja del Inframundo. ¡Nadie se burla de Polifemo en su propio redil dos veces! ¡Los voy a aplastar y a usar sus huesos como mondadientes!"</p>
+            </div>
 
-<div class="container">
-    <h1>🏛️ Nivel 1: Ciudad de Éfere</h1>
-    <p>Jugador: <strong>@ViewBag.NombreParticipante</strong></p>
-
-    <!-- ENCUENTRO 1: MEDEA -->
-    <div id="enc1" class="encuentro">
-        <h2>⚗️ Encuentro 1: Medea la Bruja</h2>
-        <p>Un caldero brumoso bloquea el camino. Resuelve: combina P → M → E</p>
-        
-        <button id="btnP">✨ Phosphorus</button>
-        <button id="btnM">🌙 Moon</button>
-        <button id="btnE">💨 Ether</button>
-        
-        <p>Tu combinación: <span id="combo">-</span></p>
-        
-        <button id="btnCheck" class="btn-action">Activar</button>
-        <button id="btnReset" class="btn-reset">Limpiar</button>
-        
-        <div id="msg1" class="mensaje"></div>
+            <div class="character-dialogue">
+                <div class="char-name">Odiseo:</div>
+                <p>"Tal como recordaba: mucho tamaño, excelente memoria para los rencores y nula paciencia. Centrémonos en sus ovejas, camarada; si movemos su preciado rebaño, perderá el rumbo por completo."</p>
+            </div>
+        </div>
     </div>
 
-    <!-- ENCUENTRO DE JEFE: POLIFEMO -->
-    <div id="enc2" class="encuentro hidden">
-        <h2>👁️ Encuentro de Jefe: Polifemo el Cíclope</h2>
-        <p>Mueve las ovejas a los interruptores en orden: 🟢 → 🟠 → 🔴</p>
-        
-        <div id="board"></div>
-        
-        <button id="btnVerify" class="btn-action">Verificar</button>
-        <button id="btnReload" class="btn-reset">Reintentar</button>
-        
-        <div id="msg2" class="mensaje"></div>
-    </div>
+    <div class="scene-content">
+        <div>
+            <div class="story-panel">
+                <div class="location-tag">El Corral</div>
+                <h2>Las Ovejas del Guardián</h2>
+                <p>
+                    "La travesía a través de las ruinas asfixiantes de Éfere condujo a la audaz viajera hasta las afueras de la metrópolis, allí donde el hedor a azufre se mezclaba con el de la lana húmeda y el estiércol. Ante ella se abría el colosal redil de Polifemo; el cíclope pastor, cuya furia ciega y hambre voraz servían ahora como el último e impenetrable cerrojo de la ciudad. Ninguna espada común podría abrirse paso a través de semejante mole de carne y rencor. El destino de la superficie pendía, una vez más, de un hilo sutil: la capacidad de la guerrera para burlar los aguzados sentidos del monstruo utilizando a su propio y preciado rebaño como la llave para su salvación."
+                </p>
+            </div>
 
-    <!-- COMPLETO -->
-    <div id="complete" class="hidden">
-        <h2>🎉 ¡Nivel Completado!</h2>
-        <p>¡Escapaste de Éfere! La llave de los muelles es tuya.</p>
+            <div class="puzzle-panel">
+                <h2>Selecciona las Ovejas Correctas</h2>
+                <p>Marcá las tres ovejas que deben ir a la zona segura.</p>
+
+                <form method="post" action="/Home/Sala3">
+                    <input type="hidden" name="id" value="3" />
+                    <div class="sheep-selection">
+                        <div class="sheep-option">
+                            <input type="checkbox" id="oveja-rojo" name="ovejas" value="rojo" />
+                            <label for="oveja-rojo">
+                                <span class="sheep-emoji">🐑</span>
+                                <span class="sheep-color">🔴 Collar Rojo</span>
+                            </label>
+                        </div>
+
+                        <div class="sheep-option">
+                            <input type="checkbox" id="oveja-azul" name="ovejas" value="azul" />
+                            <label for="oveja-azul">
+                                <span class="sheep-emoji">🐑</span>
+                                <span class="sheep-color">🔵 Collar Azul</span>
+                            </label>
+                        </div>
+
+                        <div class="sheep-option">
+                            <input type="checkbox" id="oveja-verde" name="ovejas" value="verde" />
+                            <label for="oveja-verde">
+                                <span class="sheep-emoji">🐑</span>
+                                <span class="sheep-color">🟢 Collar Verde</span>
+                            </label>
+                        </div>
+
+                        <div class="sheep-option">
+                            <input type="checkbox" id="oveja-amarillo" name="ovejas" value="amarillo" />
+                            <label for="oveja-amarillo">
+                                <span class="sheep-emoji">🐑</span>
+                                <span class="sheep-color">🟡 Collar Amarillo</span>
+                            </label>
+                        </div>
+
+                        <div class="sheep-option">
+                            <input type="checkbox" id="oveja-violeta" name="ovejas" value="violeta" />
+                            <label for="oveja-violeta">
+                                <span class="sheep-emoji">🐑</span>
+                                <span class="sheep-color">🟣 Collar Violeta</span>
+                            </label>
+                        </div>
+
+                        <div class="sheep-option">
+                            <input type="checkbox" id="oveja-gris" name="ovejas" value="gris" />
+                            <label for="oveja-gris">
+                                <span class="sheep-emoji">🐑</span>
+                                <span class="sheep-color">⚪ Collar Gris</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="cauldron">
+                        <h3>Zona de Seguridad</h3>
+                        <div class="status">Estado: Esperando que guíes a las ovejas correctas.</div>
+                        <button type="submit">Guiar Ovejas</button>
+                    </div>
+                </form>
+
+                @if (ViewBag.Mensaje != null && ViewBag.Mensaje.ToString() != "")
+                {
+                    if (ViewBag.Correcto == true)
+                    {
+                        <div class="resultado correcto">
+                            ✨ @ViewBag.Mensaje
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="resultado error">
+                            ❌ @ViewBag.Mensaje
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <aside class="character-panel">
+            <div class="character-frame">
+                <img src="~/Imagenes/Personajes/Odiseo.png" alt="Odiseo" />
+                <div class="character-name">Odiseo</div>
+                <div class="char-role">Táctico veterano</div>
+            </div>
+
+            <div class="character-frame">
+                <img src="~/Imagenes/Personajes/Polifemo.png" alt="Polifemo" />
+                <div class="character-name">Polifemo</div>
+                <div class="char-role">Cíclope infame</div>
+            </div>
+
+            <div class="dialogue-box">
+                <p><strong>Odiseo:</strong> "Mirá con atención los collares de esas bestias lanudas. Para calmar el temperamento del cíclope y nublar su oído, tenemos que aislar a las ovejas que transmiten la pasividad de la noche. Seleccioná y mové al corral del fondo únicamente a las que tengan collares de hielo, sombra y mar; es decir, los colores fríos. Dejá las demás donde están. Hacé eso y le cerraremos el ojo para siempre."</p>
+            </div>
+        </aside>
     </div>
 </div>
-
-<script src="~/js/sala1.js"></script>
