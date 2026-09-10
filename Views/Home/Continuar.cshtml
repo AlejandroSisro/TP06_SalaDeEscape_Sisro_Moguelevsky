@@ -1,9 +1,53 @@
 @{
     ViewData["Title"] = "Continuar";
+
+    string usuarioSession = Context.Session.GetString("Usuario");
+
+    if (string.IsNullOrWhiteSpace(usuarioSession))
+    {
+        Context.Response.Redirect("/Home/Login");
+        return;
+    }
+
+    BD baseDatos = new BD();
+    Usuario usuarioActual = baseDatos.ObtenerUsuarioPorNombre(usuarioSession);
+
+    if (usuarioActual == null)
+    {
+        Context.Session.Clear();
+        Context.Response.Redirect("/Home/Login");
+        return;
+    }
+
+    int ultimaSala = usuarioActual.Sala;
+    string destino = "/Home/Sala1";
+
+    if (ultimaSala == 1)
+    {
+        destino = "/Home/Sala1";
+    }
+    else if (ultimaSala == 2)
+    {
+        destino = "/Home/Sala2";
+    }
+    else if (ultimaSala == 3)
+    {
+        destino = "/Home/Sala3";
+    }
+    else if (ultimaSala == 4)
+    {
+        destino = "/Home/Sala4";
+    }
+    else if (ultimaSala == 5)
+    {
+        destino = "/Home/Sala5";
+    }
+
+    Context.Response.Redirect(destino);
+    return;
 }
 
 <div class="text-center">
     <h1>Continuar</h1>
-    <p>Esta vista todavía está en construcción.</p>
-    <a href="/Home/Index">Volver al inicio</a>
+    <p>Redirigiendo a tu última sala...</p>
 </div>
