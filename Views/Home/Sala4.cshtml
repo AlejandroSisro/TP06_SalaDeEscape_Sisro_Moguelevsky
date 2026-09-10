@@ -1,0 +1,141 @@
+@{
+    ViewData["Title"] = "Sala 4 - Grieta de Tesalia: Caribdis";
+}
+
+<div class="scene" id="caribdis-scene">
+    <div class="scene-header">
+        <h3>Grieta de Tesalia</h3>
+        <h1>Caribdis</h1>
+        <h2>La Devoradora</h2>
+    </div>
+
+    <div class="scene-content">
+        <div>
+            <div class="story-panel">
+                <img id="Caribdis" src="~/Imagenes/Personajes/Caribdis.png" alt="Caribdis">
+                <div class="location-tag">El Mar de la Perdición</div>
+                <h2>La boca del remolino</h2>
+                <p>
+                    El barco entra en la zona más peligrosa del mar: Caribdis, el remolino que engulle naves enteras.
+                    La brújula desfallece y el timón se raja en cuatro direcciones distintas. Para sobrevivir, debés
+                    restablecer el orden del mar antes de que el agua te sume en la oscuridad.
+                </p>
+            </div>
+
+            <div class="puzzle-panel">
+                <h2>Calibra el timón</h2>
+                <p>
+                    El marinero del puerto dejó la última pista en un poema casi borrado por la sal:
+                    <strong>"Cuando la estrella duerme sobre el hielo, el fuego despierta a la mañana; luego el mar guarda su secreto bajo la espuma, y la última sombra cierra el camino."</strong>
+                </p>
+
+                <form method="post" action="/Home/Sala4">
+                    <div class="grid-puzzle">
+                        <div class="card-puzzle">
+                            <label for="sentido1">1. Primer rumbo</label>
+                            <select id="sentido1" name="sentido1" class="input-puzzle">
+                                <option value="">Elegir</option>
+                                <option value="Estrella del Norte">Estrella del Norte</option>
+                                <option value="Fuego del Este">Fuego del Este</option>
+                                <option value="Llama del Este">Llama del Este</option>
+                                <option value="Profundidad del Sur">Profundidad del Sur</option>
+                                <option value="Roca del Sur">Roca del Sur</option>
+                                <option value="Sombra del Oeste">Sombra del Oeste</option>
+                                <option value="Niebla del Oeste">Niebla del Oeste</option>
+                                <option value="Viento del Norte">Viento del Norte</option>
+                                <option value="Calma del Este">Calma del Este</option>
+                                <option value="Marea del Oeste">Marea del Oeste</option>
+                                <option value="Rumbo del Sur">Rumbo del Sur</option>
+                                <option value="Brillo del Norte">Brillo del Norte</option>
+                            </select>
+                        </div>
+
+                        <div class="card-puzzle">
+                            <label for="sentido2">2. Segundo rumbo</label>
+                            <select id="sentido2" name="sentido2" class="input-puzzle">
+                                <option value="">Elegir</option>
+                                <option value="Estrella del Norte">Estrella del Norte</option>
+                                <option value="Fuego del Este">Fuego del Este</option>
+                                <option value="Llama del Este">Llama del Este</option>
+                                <option value="Profundidad del Sur">Profundidad del Sur</option>
+                                <option value="Roca del Sur">Roca del Sur</option>
+                                <option value="Sombra del Oeste">Sombra del Oeste</option>
+                                <option value="Niebla del Oeste">Niebla del Oeste</option>
+                                <option value="Viento del Norte">Viento del Norte</option>
+                                <option value="Calma del Este">Calma del Este</option>
+                                <option value="Marea del Oeste">Marea del Oeste</option>
+                                <option value="Rumbo del Sur">Rumbo del Sur</option>
+                                <option value="Brillo del Norte">Brillo del Norte</option>
+                            </select>
+                        </div>
+
+                        <div class="card-puzzle">
+                            <label for="sentido3">3. Tercer rumbo</label>
+                            <select id="sentido3" name="sentido3" class="input-puzzle">
+                                <option value="">Elegir</option>
+                                <option value="Estrella del Norte">Estrella del Norte</option>
+                                <option value="Fuego del Este">Fuego del Este</option>
+                                <option value="Llama del Este">Llama del Este</option>
+                                <option value="Profundidad del Sur">Profundidad del Sur</option>
+                                <option value="Roca del Sur">Roca del Sur</option>
+                                <option value="Sombra del Oeste">Sombra del Oeste</option>
+                                <option value="Niebla del Oeste">Niebla del Oeste</option>
+                                <option value="Viento del Norte">Viento del Norte</option>
+                                <option value="Calma del Este">Calma del Este</option>
+                                <option value="Marea del Oeste">Marea del Oeste</option>
+                                <option value="Rumbo del Sur">Rumbo del Sur</option>
+                                <option value="Brillo del Norte">Brillo del Norte</option>
+                            </select>
+                        </div>
+
+                        <div class="card-puzzle">
+                            <label for="sentido4">4. Cuarto rumbo</label>
+                            <select id="sentido4" name="sentido4" class="input-puzzle">
+                                <option value="">Elegir</option>
+                                <option value="Estrella del Norte">Estrella del Norte</option>
+                                <option value="Fuego del Este">Fuego del Este</option>
+                                <option value="Llama del Este">Llama del Este</option>
+                                <option value="Profundidad del Sur">Profundidad del Sur</option>
+                                <option value="Roca del Sur">Roca del Sur</option>
+                                <option value="Sombra del Oeste">Sombra del Oeste</option>
+                                <option value="Niebla del Oeste">Niebla del Oeste</option>
+                                <option value="Viento del Norte">Viento del Norte</option>
+                                <option value="Calma del Este">Calma del Este</option>
+                                <option value="Marea del Oeste">Marea del Oeste</option>
+                                <option value="Rumbo del Sur">Rumbo del Sur</option>
+                                <option value="Brillo del Norte">Brillo del Norte</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="console-puzzle">
+                        <h3>Timón central</h3>
+                        <div class="status">Estado: el mar intenta tragarte. Ajustá la brújula antes de que la proa gire en círculos.</div>
+                        <button type="submit">Ajustar timón</button>
+                    </div>
+                </form>
+
+                @if (!string.IsNullOrWhiteSpace(ViewBag.Mensaje?.ToString()))
+                {
+                    <div class="resultado @(ViewBag.Correcto == true ? "correcto" : "error")">
+                        @ViewBag.Mensaje
+                    </div>
+                }
+            </div>
+        </div>
+
+        <aside class="character-panel">
+            <div class="character-frame">
+                <img src="~/Imagenes/Personajes/Odiseo.png" alt="Odiseo" />
+                <div class="character-name">Odiseo</div>
+                <div class="char-role">Táctico veterano</div>
+            </div>
+
+            <div class="dialogue-box">
+                <p>
+                    <strong>Odiseo:</strong> "Si confiás en la calma, te matará. El remolino no sigue el brillo, sino la secuencia que el mundo mismo repite: la noche guarda la estrella, el alba responde al fuego, la profundidad guarda el secreto, y la sombra cierra la ruta. Si la orden falla, la espuma te engulle."
+                </p>
+            </div>
+        </aside>
+    </div>
+</div>

@@ -1,0 +1,128 @@
+@{
+    ViewData["Title"] = "Sala 5 - El Juicio de Cronos";
+}
+
+<div class="scene cronos-scene" id="cronos-scene">
+    <div class="scene-header">
+        <h3>El tiempo no puede ser detenido</h3>
+        <h1>Cronos</h1>
+        <h2>Titán del Tiempo</h2>
+    </div>
+
+    <div class="scene-content">
+        <div>
+            <div class="story-panel">
+                <div class="location-tag">El tiempo no puede ser detenido</div>
+                <h2>El tiempo no puede ser detenido</h2>
+                <p>
+                    Creías haber terminado la sala de escape. Las cerraduras cedieron, los acertijos se resolvieron,
+                    pero una sombra inmensa llenó la sala y una voz antigua dijo: "Un último enigma para probar vuestro entendimiento del tiempo." 
+                    Cronos os propone un acertijo y un desafío temporal: resolvelos y se os permitirá jugar de nuevo.
+                </p>
+            </div>
+
+            <div class="puzzle-panel">
+                <h2>Acertijo de Cronos</h2>
+                <p class="riddle">
+                    <em>"Son dos hermanas, una de las cuales engendra a la otra, y a su vez esta segunda engendra a la primera."</em>
+                </p>
+
+                <p>
+                    Escribí solamente la respuesta al acertijo: la frase que nombra a ambas hermanas.
+                </p>
+
+                <form method="post" action="/Home/Sala5">
+                    <div class="field">
+                        <label for="respuesta">Respuesta del acertijo</label>
+                        <input id="respuesta" name="respuesta" type="text"/>
+                    </div>
+
+                    <div class="controls">
+                        <button type="submit">Enviar respuesta</button>
+                        <button type="button" id="hint">Pista</button>
+                    </div>
+                </form>
+
+                @if (!string.IsNullOrWhiteSpace(ViewBag.Mensaje?.ToString()))
+                {
+                    <div class="resultado @(ViewBag.Correcto == true ? "correcto" : "error")">
+                        @ViewBag.Mensaje
+                    </div>
+                }
+            </div>
+        </div>
+
+        <aside class="character-panel">
+            <div class="character-frame" id="cronos-frame">
+                <img src="~/Imagenes/Personajes/Cronos.png" alt="Cronos" onerror="this.style.display='none'" />
+                <div class="character-name">Cronos</div>
+                <div class="char-role">Titán del Tiempo</div>
+            </div>
+
+            <div class="dialogue-box">
+                <p>
+                    <strong>Cronos:</strong> "Pensaste que el fin era el final. El tiempo no termina; se transforma.
+                    Mostradme que entendéis la danza: sin día no hay noche, sin noche no hay día. Solo entonces se abrirá el circuito." 
+                </p>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<style>
+    .cronos-scene {
+        --cronos-accent: #D4AF37;
+        --cronos-border: rgba(212, 175, 55, 0.38);
+    }
+
+    .cronos-scene.day {
+        --cronos-accent: #D4AF37;
+        --cronos-border: rgba(212, 175, 55, 0.42);
+    }
+
+    .cronos-scene.night {
+        --cronos-accent: #0d0f14;
+        --cronos-border: rgba(173, 178, 193, 0.4);
+    }
+
+    .cronos-scene .scene-header,
+    .cronos-scene .story-panel,
+    .cronos-scene .puzzle-panel,
+    .cronos-scene .dialogue-box,
+    .cronos-scene .character-frame {
+        border-color: var(--cronos-border);
+    }
+
+    .cronos-scene .character-frame img {
+        border: 2px solid var(--cronos-accent);
+        box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.18), 0 0 16px rgba(212, 175, 55, 0.18);
+    }
+
+    .cronos-scene .character-name,
+    .cronos-scene .location-tag,
+    .cronos-scene .scene-header h3 {
+        color: var(--cronos-accent);
+    }
+
+    .cronos-scene .location-tag {
+        border-color: var(--cronos-border);
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    var scene = document.querySelector('.cronos-scene');
+    if (!scene) return;
+
+    var hour = (new Date()).getHours();
+    var isDay = hour >= 6 && hour < 18;
+    scene.classList.add(isDay ? 'day' : 'night');
+
+    var hintBtn = document.getElementById('hint');
+    if (hintBtn) {
+        hintBtn.addEventListener('click', function(){
+            alert('Pista: Hermanas que se suceden, no se miran; una despierta cuando la otra se retira.');
+        });
+    }
+});
+</script>
