@@ -18,6 +18,21 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult Continuar()
+    {
+        return View();
+    }
+
+    public IActionResult Historia()
+    {
+        return View();
+    }
+
+    public IActionResult Integrantes()
+    {
+        return View();
+    }
+
     public IActionResult Privacy()
     {
         return View();
@@ -320,7 +335,7 @@ public class HomeController : Controller
     public IActionResult Sala1()
     {
         BD bd = new BD();
-        var dioses = bd.ObtenerDiosesAleatorios(2);
+        List<Dioses> dioses = bd.ObtenerDiosesAleatorios(2);
         if (dioses == null || dioses.Count < 2)
         {
             ViewBag.Mensaje = "No se pudieron cargar los dioses. Intentá recargar la página.";
@@ -343,7 +358,6 @@ public class HomeController : Controller
         if (!string.IsNullOrWhiteSpace(respuesta))
         {
             string r = respuesta.ToLower().Replace("á", "a").Replace("é", "e").Replace("í", "i").Replace("ó", "o").Replace("ú", "u");
-            // Considerar respuestas que contengan ambas palabras: día y noche
             if (r.Contains("dia") && r.Contains("noche"))
             {
                 correctoRiddle = true;
