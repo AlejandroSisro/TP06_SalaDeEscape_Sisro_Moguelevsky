@@ -1,9 +1,8 @@
 using System.Diagnostics;
-using Dapper;
-using Escape.Models;
+using TP06_SalaDeEscape_Sisro_Moguelevsky.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Escape.Controllers;
+namespace TP06_SalaDeEscape_Sisro_Moguelevsky.Controllers;
 
 public class HomeController : Controller
 {
@@ -30,65 +29,54 @@ public class HomeController : Controller
         string usuario = HttpContext.Session.GetString("Usuario");
         if (usuario != null && usuario != "")
         {
-            return RedirectToAction("Sala", new { id = 1 });
+            return RedirectToAction("Sala1");
         }
 
         return View("Login");
     }
 
     [HttpPost]
-    public IActionResult Login(string usuario, string contraseña, string sala)
+    public IActionResult Login(string usuario, string contrasena)
     {
-        if (usuario != null && usuario != "" && contraseña != null && contraseña != "")
+        if (string.IsNullOrWhiteSpace(usuario))
+        {
+            ViewBag.Error = "Debe ingresar un nombre de usuario.";
+            return View("Login");
+        }
+
+        try
         {
             BD bd = new BD();
 
             Usuario existente = bd.ObtenerUsuarioPorNombre(usuario);
-
-            int salaNumero = 1;
-            if (sala != null && sala != "")
-            {
-                int.TryParse(sala, out salaNumero);
-                if (salaNumero <= 0)
-                {
-                    salaNumero = 1;
-                }
-            }
-
             if (existente == null)
             {
-                Usuario nuevo = new Usuario();
-                nuevo.nombreUsuario = usuario;
-                nuevo.contraseña = contraseña;
-                nuevo.nombre = "";
-                nuevo.apellido = "";
-                nuevo.IdBendicion = null;
-                nuevo.IdMaldicion = null;
-                nuevo.Sala = salaNumero;
+                Usuario nuevo = new Usuario
+                {
+                    nombreUsuario = usuario,
+                    Sala = 1
+                };
 
                 bd.RegistrarUsuario(nuevo);
             }
-            else
-            {
-                bool valido = bd.ValidarCredenciales(usuario, contraseña);
-                if (valido == false)
-                {
-                    ViewBag.Error = "Usuario o contraseña inválidos";
-                    return View("Login");
-                }
-
-                existente.Sala = salaNumero;
-                bd.ActualizarUsuario(existente);
-            }
 
             HttpContext.Session.SetString("Usuario", usuario);
-            HttpContext.Session.SetString("SalaActual", salaNumero.ToString());
 
-            return RedirectToAction("Sala", new { id = 1 });
+            Usuario u = bd.ObtenerUsuarioPorNombre(usuario);
+            int salaActual = 1;
+            if (u != null)
+            {
+                salaActual = u.Sala;
+            }
+
+            HttpContext.Session.SetString("SalaActual", salaActual.ToString());
+            return RedirectToAction(nameof(Sala1));
         }
-
-        ViewBag.Error = "Usuario o contraseña inválidos";
-        return View("Login");
+        catch
+        {
+            ViewBag.Error = "No se pudo conectar con la base de datos. Verificá que SQL Server esté activo y que la base exista.";
+            return View("Login");
+        }
     }
 
     [HttpGet]
@@ -106,131 +94,282 @@ public class HomeController : Controller
 
         if (correcto)
         {
-            ViewBag.Mensaje = "Has purificado la niebla. El camino está libre.";
-            ViewBag.Correcto = true;
+            BD bd = new BD();
+            string usuario = HttpContext.Session.GetString("Usuario");
+            if (!string.IsNullOrWhiteSpace(usuario))
+            {
+                Usuario user = bd.ObtenerUsuarioPorNombre(usuario);
+                if (user != null)
+                {
+                    user.Sala = 3;
+                    bd.ActualizarUsuario(user);
+                    HttpContext.Session.SetString("SalaActual", "3");
+                }
+            }
+
+            return RedirectToAction("Sala3");
         }
-        else
-        {
-            ViewBag.Mensaje = "El orden es incorrecto. Intenta de nuevo.";
-            ViewBag.Correcto = false;
-        }
+
+        ViewBag.Mensaje = "El orden es incorrecto. Intenta de nuevo.";
+        ViewBag.Correcto = false;
 
         return View("Sala2");
     }
 
     [HttpGet]
-    public IActionResult Sala(int id)
+    public IActionResult Sala3()
     {
-        int partidaId = HttpContext.Session.GetString("PartidaId");
+        return View();
+    }
 
-        if (partidaId == null || partidaId == "")
+    [HttpPost]
+    public IActionResult Sala3(int id, string[] ovejas)
+    {
+        bool correcto = true;
+        if (ovejas == null)
         {
-            return RedirectToAction("Index");
+            correcto = false;
+        }
+        else if (ovejas.Length != 3)
+        {
+            correcto = false;
+        }
+        else
+        {
+            bool tieneAzul = false;
+            bool tieneVerde = false;
+            bool tieneVioleta = false;
+            for (int i = 0; i < ovejas.Length; i++)
+            {
+                string v = ovejas[i];
+                if (v == "azul")
+                {
+                    tieneAzul = true;
+                }
+                else if (v == "verde")
+                {
+                    tieneVerde = true;
+                }
+                else if (v == "violeta")
+                {
+                    tieneVioleta = true;
+                }
+            }
+
+            if (tieneAzul == false || tieneVerde == false || tieneVioleta == false)
+            {
+                correcto = false;
+            }
         }
 
-        int idPartida = 0;
-        int.TryParse(partidaId, out idPartida);
-
-        using int connection = GetConnection();
-
-        int partida = connection.QuerySingleOrDefault<dynamic>(
-            @"
-            SELECT p.Id, p.NombreParticipante, pr.SalaActual
-            FROM Partidas p
-            LEFT JOIN Progresos pr ON pr.PartidaId = p.Id
-            WHERE p.Id = @Id
-            ",
-            new { Id = idPartida }
-        );
-
-        if (partida == null)
+        if (correcto)
         {
-            return RedirectToAction("Error");
+            BD bd = new BD();
+            string usuario = HttpContext.Session.GetString("Usuario");
+            if (!string.IsNullOrWhiteSpace(usuario))
+            {
+                Usuario user = bd.ObtenerUsuarioPorNombre(usuario);
+                if (user != null)
+                {
+                    user.Sala = 4;
+                    bd.ActualizarUsuario(user);
+                    HttpContext.Session.SetString("SalaActual", "4");
+                }
+            }
+
+            return RedirectToAction("Sala4");
         }
 
-        if (partida.SalaActual != null && (int)partida.SalaActual != id)
+        ViewBag.Mensaje = "Las ovejas que seleccionaste no son las correctas. Recuerda: azul, violeta y verde.";
+        ViewBag.Correcto = false;
+
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult Sala4()
+    {
+        ViewBag.Mensaje = "";
+        ViewBag.Correcto = false;
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult Sala4(string sentido1, string sentido2, string sentido3, string sentido4)
+    {
+        bool correcto = sentido1 == "Estrella del Norte" &&
+                        sentido2 == "Llama del Este" &&
+                        sentido3 == "Profundidad del Sur" &&
+                        sentido4 == "Sombra del Oeste";
+
+        if (correcto)
         {
-            return RedirectToAction("Error");
+            BD bd = new BD();
+            string usuario = HttpContext.Session.GetString("Usuario");
+            if (!string.IsNullOrWhiteSpace(usuario))
+            {
+                Usuario user = bd.ObtenerUsuarioPorNombre(usuario);
+                if (user != null)
+                {
+                    user.Sala = 5; // avanzar a la sala final
+                    bd.ActualizarUsuario(user);
+                    HttpContext.Session.SetString("SalaActual", "5");
+                }
+            }
+
+            return RedirectToAction("Sala5");
         }
 
-        HttpContext.Session.SetString("SalaActual", id.ToString());
-        ViewBag.NombreParticipante = partida.NombreParticipante;
-        ViewBag.SalaActual = id;
+        ViewBag.Mensaje = "El timón responde con un giro monstruoso: la brújula está desordenada y el remolino se acerca. Revisa la secuencia del marinero.";
+        ViewBag.Correcto = false;
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult Sala1(int elegidoId, int dios1Id, int dios2Id)
+    {
+        BD bd = new BD();
+        Dioses elegido = bd.ObtenerDiosPorId(elegidoId);
+        int otroId = dios1Id;
+        if (dios1Id == elegidoId)
+        {
+            otroId = dios2Id;
+        }
+
+        Dioses otro = bd.ObtenerDiosPorId(otroId);
+
+        ViewBag.Elegido = elegido;
+        ViewBag.Otro = otro;
+        ViewBag.ShowRiddle = true;
+        ViewBag.Dios1 = elegido;
+        ViewBag.Dios2 = otro;
 
         return View();
     }
 
     [HttpPost]
-    public IActionResult ResponderSala(int id, string respuesta)
+    public IActionResult ResponderEsfinge(int elegidoId, int dios1Id, int dios2Id, string respuesta)
     {
-        var partidaId = HttpContext.Session.GetString("PartidaId");
-
-        if (partidaId == null || partidaId == "")
+        BD bd = new BD();
+        Dioses elegido = bd.ObtenerDiosPorId(elegidoId);
+        int otroId = dios1Id;
+        if (dios1Id == elegidoId)
         {
-            return RedirectToAction("Index");
+            otroId = dios2Id;
         }
 
-        int idPartida = 0;
-        int.TryParse(partidaId, out idPartida);
+        Dioses otro = bd.ObtenerDiosPorId(otroId);
 
-        using var connection = GetConnection();
-
-        var partida = connection.QuerySingleOrDefault<dynamic>(
-            @"
-            SELECT p.Id, pr.SalaActual
-            FROM Partidas p
-            LEFT JOIN Progresos pr ON pr.PartidaId = p.Id
-            WHERE p.Id = @Id
-            ",
-            new { Id = idPartida }
-        );
-
-        if (partida == null)
+        bool correcto = false;
+        if (respuesta != null && respuesta != "")
         {
-            return RedirectToAction("Error");
-        }
-
-        if (partida.SalaActual != null && (int)partida.SalaActual != id)
-        {
-            return RedirectToAction("Error");
-        }
-
-        connection.Execute(
-            @"
-            UPDATE Progresos
-            SET SalaActual = @SalaActual,
-                UltimaRespuesta = @Respuesta,
-                FechaActualizacion = GETDATE()
-            WHERE PartidaId = @PartidaId;
-
-            IF @@ROWCOUNT = 0
-            BEGIN
-                INSERT INTO Progresos (PartidaId, SalaActual, UltimaRespuesta, FechaActualizacion)
-                VALUES (@PartidaId, @SalaActual, @Respuesta, GETDATE());
-            END;
-            ",
-            new
+            string r = respuesta.ToLower();
+            if (r.Contains("hombre") || r.Contains("el hombre"))
             {
-                PartidaId = idPartida,
-                SalaActual = id,
-                Respuesta = respuesta
+                correcto = true;
             }
-        );
+        }
 
-        HttpContext.Session.SetString("SalaActual", id.ToString());
+        if (correcto)
+        {
+            string usuario = HttpContext.Session.GetString("Usuario");
+            if (usuario != null && usuario != "")
+            {
+                Usuario user = bd.ObtenerUsuarioPorNombre(usuario);
+                if (user != null)
+                {
+                    user.Sala = 2;
+                    bd.ActualizarUsuario(user);
+                    HttpContext.Session.SetString("SalaActual", "2");
+                }
+            }
 
-        return RedirectToAction("Sala", new { id });
+            return RedirectToAction("Medea");
+        }
+
+        ViewBag.Elegido = elegido;
+        ViewBag.Otro = otro;
+        ViewBag.ShowRiddle = false;
+        ViewBag.AnswerCorrect = correcto;
+        ViewBag.Dios1 = elegido;
+        ViewBag.Dios2 = otro;
+        return View("Sala1");
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        string requestId = HttpContext.TraceIdentifier;
+        if (Activity.Current != null && Activity.Current.Id != null && Activity.Current.Id != "")
+        {
+            requestId = Activity.Current.Id;
+        }
+
+        return View(new ErrorViewModel { RequestId = requestId });
     }
 
-    private SqlConnection GetConnection()
+    [HttpGet]
+    public IActionResult Sala5()
     {
-        var connectionString = _configuration.GetConnectionString("DefaultConnection");
-        return new SqlConnection(connectionString);
+        ViewBag.Mensaje = "";
+        ViewBag.Correcto = false;
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult Sala1()
+    {
+        BD bd = new BD();
+        var dioses = bd.ObtenerDiosesAleatorios(2);
+        if (dioses == null || dioses.Count < 2)
+        {
+            ViewBag.Mensaje = "No se pudieron cargar los dioses. Intentá recargar la página.";
+            ViewBag.Dios1 = null;
+            ViewBag.Dios2 = null;
+            return View();
+        }
+
+        ViewBag.Dios1 = dioses[0];
+        ViewBag.Dios2 = dioses[1];
+        ViewBag.ShowRiddle = false;
+        ViewBag.AnswerCorrect = null;
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult Sala5(string respuesta)
+    {
+        bool correctoRiddle = false;
+        if (!string.IsNullOrWhiteSpace(respuesta))
+        {
+            string r = respuesta.ToLower().Replace("á", "a").Replace("é", "e").Replace("í", "i").Replace("ó", "o").Replace("ú", "u");
+            // Considerar respuestas que contengan ambas palabras: día y noche
+            if (r.Contains("dia") && r.Contains("noche"))
+            {
+                correctoRiddle = true;
+            }
+        }
+
+        if (correctoRiddle)
+        {
+            BD bd = new BD();
+            string usuario = HttpContext.Session.GetString("Usuario");
+            if (!string.IsNullOrWhiteSpace(usuario))
+            {
+                Usuario user = bd.ObtenerUsuarioPorNombre(usuario);
+                if (user != null)
+                {
+                    user.Sala = 1; // reinicia para jugar de nuevo
+                    bd.ActualizarUsuario(user);
+                    HttpContext.Session.SetString("SalaActual", "1");
+                }
+            }
+
+            return RedirectToAction("Sala1");
+        }
+
+        ViewBag.Mensaje = "La respuesta es incorrecta. Intentá otra vez.";
+        ViewBag.Correcto = false;
+        return View();
     }
 }
