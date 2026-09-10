@@ -34,11 +34,6 @@ namespace TP06_SalaDeEscape_Sisro_Moguelevsky.Models
         {
             try
             {
-                if (!TieneConexionDisponible())
-                {
-                    return new List<Dioses>(DiosesFallback);
-                }
-
                 using SqlConnection connection = new SqlConnection(_connectionString);
                 string query = "SELECT IdDios, Nombre, FotoDios, Dialogo FROM Dioses";
                 List<Dioses> resultado = connection.Query<Dioses>(query).ToList();
@@ -60,11 +55,6 @@ namespace TP06_SalaDeEscape_Sisro_Moguelevsky.Models
         {
             try
             {
-                if (!TieneConexionDisponible())
-                {
-                    return DiosesFallback.FirstOrDefault(d => d.IdDios == idDios);
-                }
-
                 using SqlConnection connection = new SqlConnection(_connectionString);
                 string query = "SELECT IdDios, Nombre, FotoDios, Dialogo FROM Dioses WHERE IdDios = @pId";
                 Dioses dios = connection.QueryFirstOrDefault<Dioses>(query, new { pId = idDios });
@@ -103,11 +93,6 @@ namespace TP06_SalaDeEscape_Sisro_Moguelevsky.Models
 
         public List<Usuario> ObtenerTodosLosUsuarios()
         {
-            if (!TieneConexionDisponible())
-            {
-                return new List<Usuario>();
-            }
-
             try
             {
                 using SqlConnection connection = new SqlConnection(_connectionString);
@@ -122,7 +107,7 @@ namespace TP06_SalaDeEscape_Sisro_Moguelevsky.Models
 
         public Usuario ObtenerUsuarioPorNombre(string nombreUsuario)
         {
-            if (string.IsNullOrWhiteSpace(nombreUsuario) || !TieneConexionDisponible())
+            if (string.IsNullOrWhiteSpace(nombreUsuario))
             {
                 return null;
             }
@@ -146,7 +131,7 @@ namespace TP06_SalaDeEscape_Sisro_Moguelevsky.Models
 
         public void RegistrarUsuario(Usuario usuario)
         {
-            if (usuario == null || string.IsNullOrWhiteSpace(usuario.nombreUsuario) || !TieneConexionDisponible())
+            if (usuario == null || string.IsNullOrWhiteSpace(usuario.nombreUsuario))
             {
                 return;
             }
@@ -169,7 +154,7 @@ namespace TP06_SalaDeEscape_Sisro_Moguelevsky.Models
 
         public void ActualizarUsuario(Usuario usuario)
         {
-            if (usuario == null || string.IsNullOrWhiteSpace(usuario.nombreUsuario) || !TieneConexionDisponible())
+            if (usuario == null || string.IsNullOrWhiteSpace(usuario.nombreUsuario))
             {
                 return;
             }
@@ -192,7 +177,7 @@ namespace TP06_SalaDeEscape_Sisro_Moguelevsky.Models
 
         public void ActualizarSalaUsuario(string nombreUsuario, int sala)
         {
-            if (string.IsNullOrWhiteSpace(nombreUsuario) || !TieneConexionDisponible())
+            if (string.IsNullOrWhiteSpace(nombreUsuario))
             {
                 return;
             }
@@ -211,7 +196,7 @@ namespace TP06_SalaDeEscape_Sisro_Moguelevsky.Models
 
         public void EliminarUsuario(string nombreUsuario)
         {
-            if (string.IsNullOrWhiteSpace(nombreUsuario) || !TieneConexionDisponible())
+            if (string.IsNullOrWhiteSpace(nombreUsuario))
             {
                 return;
             }
