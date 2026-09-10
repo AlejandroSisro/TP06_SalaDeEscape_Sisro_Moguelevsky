@@ -1,203 +1,61 @@
 USE [master]
 GO
-/****** Object:  Database [Hades2SalaEscape]    Script Date: 3/9/2026 08:55:58 ******/
-CREATE DATABASE [Hades2SalaEscape]
- CONTAINMENT = NONE
- ON  PRIMARY 
-( NAME = N'Hades2SalaEscape', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER\MSSQL\DATA\Hades2SalaEscape.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
- LOG ON 
-( NAME = N'Hades2SalaEscape_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER\MSSQL\DATA\Hades2SalaEscape_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
-GO
-ALTER DATABASE [Hades2SalaEscape] SET COMPATIBILITY_LEVEL = 140
-GO
-IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
-begin
-EXEC [Hades2SalaEscape].[dbo].[sp_fulltext_database] @action = 'enable'
-end
-GO
-ALTER DATABASE [Hades2SalaEscape] SET ANSI_NULL_DEFAULT OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET ANSI_NULLS OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET ANSI_PADDING OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET ANSI_WARNINGS OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET ARITHABORT OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET AUTO_CLOSE OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET AUTO_SHRINK OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET AUTO_UPDATE_STATISTICS ON 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET CURSOR_CLOSE_ON_COMMIT OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET CURSOR_DEFAULT  GLOBAL 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET CONCAT_NULL_YIELDS_NULL OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET NUMERIC_ROUNDABORT OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET QUOTED_IDENTIFIER OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET RECURSIVE_TRIGGERS OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET  DISABLE_BROKER 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET DATE_CORRELATION_OPTIMIZATION OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET TRUSTWORTHY OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET ALLOW_SNAPSHOT_ISOLATION OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET PARAMETERIZATION SIMPLE 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET READ_COMMITTED_SNAPSHOT OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET HONOR_BROKER_PRIORITY OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET RECOVERY FULL 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET  MULTI_USER 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET PAGE_VERIFY CHECKSUM  
-GO
-ALTER DATABASE [Hades2SalaEscape] SET DB_CHAINING OFF 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET TARGET_RECOVERY_TIME = 60 SECONDS 
-GO
-ALTER DATABASE [Hades2SalaEscape] SET DELAYED_DURABILITY = DISABLED 
-GO
-EXEC sys.sp_db_vardecimal_storage_format N'Hades2SalaEscape', N'ON'
-GO
-ALTER DATABASE [Hades2SalaEscape] SET QUERY_STORE = OFF
+IF DB_ID('Hades2SalaEscape') IS NULL
+BEGIN
+    CREATE DATABASE [Hades2SalaEscape]
+END
 GO
 USE [Hades2SalaEscape]
 GO
-/****** Object:  User [alumno]    Script Date: 3/9/2026 08:55:58 ******/
-CREATE USER [alumno] FOR LOGIN [alumno] WITH DEFAULT_SCHEMA=[dbo]
+IF OBJECT_ID(N'[dbo].[Usuario]', N'U') IS NULL
+BEGIN
+    CREATE TABLE [dbo].[Usuario](
+        [Id] [int] IDENTITY(1,1) NOT NULL,
+        [nombreUsuario] [varchar](50) NOT NULL,
+        [Sala] [int] NOT NULL DEFAULT (1),
+     CONSTRAINT [PK_Usuario] PRIMARY KEY CLUSTERED 
+    (
+        [Id] ASC
+    )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+    ) ON [PRIMARY]
+END
 GO
-/****** Object:  Table [dbo].[Bendiciones]    Script Date: 3/9/2026 08:55:58 ******/
-SET ANSI_NULLS ON
+IF OBJECT_ID(N'[dbo].[Usuarios]', N'U') IS NOT NULL
+BEGIN
+    DROP TABLE [dbo].[Usuarios];
+END
 GO
-SET QUOTED_IDENTIFIER ON
+IF OBJECT_ID(N'[dbo].[Dioses]', N'U') IS NULL
+BEGIN
+    CREATE TABLE [dbo].[Dioses](
+        [IdDios] [int] IDENTITY(1,1) NOT NULL,
+        [Nombre] [varchar](50) NOT NULL,
+        [FotoDios] [varchar](150) NOT NULL,
+        [Dialogo] [varchar](1000) NOT NULL,
+     CONSTRAINT [PK_Dioses] PRIMARY KEY CLUSTERED 
+    (
+        [IdDios] ASC
+    )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+    ) ON [PRIMARY]
+END
 GO
-CREATE TABLE [dbo].[Bendiciones](
-	[IdBendicion] [int] IDENTITY(1,1) NOT NULL,
-	[IdDios] [int] NOT NULL,
-	[Imagen] [varchar](50) NOT NULL,
-	[TiempoAdicional] [float] NOT NULL,
-	[VidaAdicional] [int] NOT NULL,
-	[AtaqueAdicional] [int] NOT NULL,
-	[Nombre] [varchar](50) NOT NULL,
-	[Descripcion] [varchar](150) NOT NULL,
- CONSTRAINT [PK_Bendiciones] PRIMARY KEY CLUSTERED 
-(
-	[IdBendicion] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-/****** Object:  Table [dbo].[Dioses]    Script Date: 3/9/2026 08:55:58 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [dbo].[Dioses](
-	[IdDios] [int] IDENTITY(1,1) NOT NULL,
-	[Nombre] [varchar](50) NOT NULL,
- CONSTRAINT [PK_Dioses] PRIMARY KEY CLUSTERED 
-(
-	[IdDios] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-/****** Object:  Table [dbo].[Maldiciones]    Script Date: 3/9/2026 08:55:58 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [dbo].[Maldiciones](
-	[IdMaldicion] [int] IDENTITY(1,1) NOT NULL,
-	[Imagen] [varchar](50) NOT NULL,
-	[Nombre] [varchar](50) NOT NULL,
-	[TiempoAdicional] [int] NOT NULL,
-	[VidaAdicional] [int] NOT NULL,
-	[AtaqueAdicional] [int] NOT NULL,
-	[Descripcion] [varchar](150) NOT NULL,
- CONSTRAINT [PK_Maldiciones] PRIMARY KEY CLUSTERED 
-(
-	[IdMaldicion] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-/****** Object:  Table [dbo].[Usuarios]    Script Date: 3/9/2026 08:55:58 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [dbo].[Usuarios](
-	[IdUsuario] [int] IDENTITY(1,1) NOT NULL,
-	[NombreUsuario] [varchar](50) NOT NULL,
-	[Contraseña] [varchar](50) NOT NULL,
-	[NumeroSala] [int] NOT NULL,
-	[IdBendicion] [int] NULL,
-	[IdMaldicion] [int] NULL,
- CONSTRAINT [PK_Usuarios] PRIMARY KEY CLUSTERED 
-(
-	[IdUsuario] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-SET IDENTITY_INSERT [dbo].[Bendiciones] ON 
-
-INSERT [dbo].[Bendiciones] ([IdBendicion], [IdDios], [Imagen], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Nombre], [Descripcion]) VALUES (1, 1, N'GolpeOla.png', 0, 0, 20, N'Golpe de Ola', N'Tus ataques golpean a los enemigos con una salpicadura que repele a otros enemigos.')
-INSERT [dbo].[Bendiciones] ([IdBendicion], [IdDios], [Imagen], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Nombre], [Descripcion]) VALUES (2, 3, N'GolpeCelestial.png', 0, 0, 80, N'Golpe Celestial', N'Tus ataques infligen Blitz')
-INSERT [dbo].[Bendiciones] ([IdBendicion], [IdDios], [Imagen], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Nombre], [Descripcion]) VALUES (3, 6, N'FuegoApoyo.png', 0, 0, 25, N'Fuego de Apoyo', N'Después de acertar con tus ataques o especiales , dispara una flecha teledirigida.')
-INSERT [dbo].[Bendiciones] ([IdBendicion], [IdDios], [Imagen], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Nombre], [Descripcion]) VALUES (4, 10, N'AnilloYunque.png', 0, 0, 60, N'Anillo del Yunque', N'Tus lanzamientos infligen daño 3 veces consecutivas a los enemigos dentro del círculo de vinculación.')
-INSERT [dbo].[Bendiciones] ([IdBendicion], [IdDios], [Imagen], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Nombre], [Descripcion]) VALUES (5, 9, N'AnilloCompromiso.png', 0, 0, 50, N'Anillo de compromiso', N'Tus lanzamientos infligen Enganche y causan daño inmediatamente según los enemigos en el círculo de vinculación.')
-INSERT [dbo].[Bendiciones] ([IdBendicion], [IdDios], [Imagen], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Nombre], [Descripcion]) VALUES (6, 12, N'GolpeCruel.png', 0, 0, 20, N'Golpe Cruel', N'Tus ataques infligen más daño y provocan heridas.')
-INSERT [dbo].[Bendiciones] ([IdBendicion], [IdDios], [Imagen], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Nombre], [Descripcion]) VALUES (7, 5, N'HieloBrillante.png', 0, 0, 40, N'Hielo brillante', N'Tus especiales infligen más daño y congelan.')
-INSERT [dbo].[Bendiciones] ([IdBendicion], [IdDios], [Imagen], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Nombre], [Descripcion]) VALUES (8, 4, N'AtaqueCegador', 15, 0, 20, N'Ataque cegador', N'Tu sprint es más rápido e inflige aturdimiento a los enemigos cercanos.')
-INSERT [dbo].[Bendiciones] ([IdBendicion], [IdDios], [Imagen], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Nombre], [Descripcion]) VALUES (9, 8, N'PensamientosAcelerados', 25, 0, 0, N'Pensamientos acelerados', N'Tus movimientos son más rápidos.')
-SET IDENTITY_INSERT [dbo].[Bendiciones] OFF
-GO
-SET IDENTITY_INSERT [dbo].[Dioses] ON 
-
-INSERT [dbo].[Dioses] ([IdDios], [Nombre]) VALUES (1, N'Poseidon')
-INSERT [dbo].[Dioses] ([IdDios], [Nombre]) VALUES (2, N'Hestia')
-INSERT [dbo].[Dioses] ([IdDios], [Nombre]) VALUES (3, N'Zeus')
-INSERT [dbo].[Dioses] ([IdDios], [Nombre]) VALUES (4, N'Apollo')
-INSERT [dbo].[Dioses] ([IdDios], [Nombre]) VALUES (5, N'Demeter')
-INSERT [dbo].[Dioses] ([IdDios], [Nombre]) VALUES (6, N'Artemisa')
-INSERT [dbo].[Dioses] ([IdDios], [Nombre]) VALUES (7, N'Atenea')
-INSERT [dbo].[Dioses] ([IdDios], [Nombre]) VALUES (8, N'Hermes')
-INSERT [dbo].[Dioses] ([IdDios], [Nombre]) VALUES (9, N'Hera')
-INSERT [dbo].[Dioses] ([IdDios], [Nombre]) VALUES (10, N'Hefesto')
-INSERT [dbo].[Dioses] ([IdDios], [Nombre]) VALUES (11, N'Selene')
-INSERT [dbo].[Dioses] ([IdDios], [Nombre]) VALUES (12, N'Ares')
-SET IDENTITY_INSERT [dbo].[Dioses] OFF
-GO
-SET IDENTITY_INSERT [dbo].[Maldiciones] ON 
-
-INSERT [dbo].[Maldiciones] ([IdMaldicion], [Imagen], [Nombre], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Descripcion]) VALUES (1, N'VidaMuertos.png', N'Vida de entre los muertos', 0, 10, 0, N'Después de que un enemigo sea asesinado, tiene un 5% de probabilidad de soltar +10 Salud, límite de 1 por encuentro.')
-INSERT [dbo].[Maldiciones] ([IdMaldicion], [Imagen], [Nombre], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Descripcion]) VALUES (2, N'RiquezaMuertos.png', N'Riqueza de los muertos', 20, 0, 0, N'Después de que un enemigo sea asesinado, tiene un 10% de probabilidad de soltar +20 Oro, límite de 2 por encuentro.')
-INSERT [dbo].[Maldiciones] ([IdMaldicion], [Imagen], [Nombre], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Descripcion]) VALUES (3, N'RastrosEspiritu.png', N'Rastros de espíritu', 5, 5, 5, N'Después de cada encuentro, obtienes +5 Magic')
-INSERT [dbo].[Maldiciones] ([IdMaldicion], [Imagen], [Nombre], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Descripcion]) VALUES (4, N'SufrimientoVista.png', N'Sufrimiento al verlo', 0, 0, 999, N'Después de que un enemigo se une al Encuentro, recibe aleatoriamente de 1 a 999 puntos de daño.')
-INSERT [dbo].[Maldiciones] ([IdMaldicion], [Imagen], [Nombre], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Descripcion]) VALUES (5, N'CorrosionVista.png', N'Corrosión a la vista', 0, 0, 50, N'Después de que un enemigo se une al Encuentro, pierde el 50% de cualquier armadura que tenga.')
-INSERT [dbo].[Maldiciones] ([IdMaldicion], [Imagen], [Nombre], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Descripcion]) VALUES (6, N'DebilitamientoCobardes.png', N'Debilitamiento de los cobardes', 40, 0, 0, N'Los disparos a distancia de los enemigos tienen un -40% de velocidad de viaje.')
-INSERT [dbo].[Maldiciones] ([IdMaldicion], [Imagen], [Nombre], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Descripcion]) VALUES (7, N'MaliciaEspecie.png', N'Malicia en especie', 0, 0, 15, N'Siempre que un enemigo te haga usar Desafío a la muerte, pierde un 15% de salud')
-INSERT [dbo].[Maldiciones] ([IdMaldicion], [Imagen], [Nombre], [TiempoAdicional], [VidaAdicional], [AtaqueAdicional], [Descripcion]) VALUES (8, N'DañoAfligidos.png', N'Daño para los afligidos', 0, 0, 50, N'Infligir una maldición causa 50 de daño si el enemigo no está afectado por ella, hasta 1 segundo.')
-SET IDENTITY_INSERT [dbo].[Maldiciones] OFF
-GO
-ALTER TABLE [dbo].[Bendiciones]  WITH CHECK ADD  CONSTRAINT [FK_Bendiciones_Dioses] FOREIGN KEY([IdDios])
-REFERENCES [dbo].[Dioses] ([IdDios])
-GO
-ALTER TABLE [dbo].[Bendiciones] CHECK CONSTRAINT [FK_Bendiciones_Dioses]
+IF NOT EXISTS (SELECT 1 FROM [dbo].[Dioses])
+BEGIN
+    SET IDENTITY_INSERT [dbo].[Dioses] ON
+    INSERT [dbo].[Dioses] ([IdDios], [Nombre], [FotoDios], [Dialogo]) VALUES (1, N'Zeus', N'Zeus.png', N'¡Contemplá el poder del firmamento, pariente! Los demás te ofrecerán trucos sutiles, pero cuando el Tiempo te pisa los talones, nada supera a la fuerza de la tormenta. Elegí mi rayo: fulminaremos los obstáculos y ralentizaremos los mecanismos de tus enemigos. Dejá que mis hermanos duden, nosotros golpeamos primero.')
+    INSERT [dbo].[Dioses] ([IdDios], [Nombre], [FotoDios], [Dialogo]) VALUES (2, N'Poseidon', N'Poseidon.png', N'¡Ja! No te dejes engañar por promesas elegantes, pequeña. Solo la fuerza de una marea implacable puede arrastrar la resistencia del enemigo. Con mi bendición, aturdiremos el compás del peligro y empujaremos las respuestas hacia vos como un naufragio en la costa. ¡Elegime y que rujan las olas!')
+    INSERT [dbo].[Dioses] ([IdDios], [Nombre], [FotoDios], [Dialogo]) VALUES (3, N'Apolo', N'Apolo.png', N'¡Saludos, estrella de la noche! El camino hacia la cumbre es oscuro y lleno de desvíos engañosos, pero mi luz puede disipar cualquier sombra. Mi bendición iluminará el camino correcto y te dará más tiempo para memorizar los patrones del enemigo. Dejá que la claridad guíe tus pasos.')
+    INSERT [dbo].[Dioses] ([IdDios], [Nombre], [FotoDios], [Dialogo]) VALUES (4, N'Hera', N'Hera.png', N'El linaje y el orden deben prevalecer ante el caos de Cronos. Las deidades menores te ofrecerán libertades efímeras, pero mi lazo soberano te otorga verdadero control. Con mi bendición, ataremos los elementos del acertijo para que un acierto debilite el resto de las trabas. Someté el nivel a tu voluntad.')
+    INSERT [dbo].[Dioses] ([IdDios], [Nombre], [FotoDios], [Dialogo]) VALUES (5, N'Demeter', N'Demeter.png', N'El invierno no conoce la piedad, y tus enemigos tampoco deberían conocerla. Mientras los jóvenes del Olimpo derrochan palabras, mi escarcha congelará sus pretensiones. Si elegís mi favor, congelaremos los temporizadores del nivel, dándote la fría calma que necesitás para pensar sin presiones. Soportá la tormenta.')
+    INSERT [dbo].[Dioses] ([IdDios], [Nombre], [FotoDios], [Dialogo]) VALUES (6, N'Hefesto', N'Hefesto.png', N'Los discursos bonitos no rompen cadenas, muchacha; el metal al rojo vivo sí. Mientras los demás te dan bendiciones intangibles, yo te ofrezco ingeniería pura y pesada. Mi favor destruirá una de las sub-fases más molestas de un solo golpe de mi martillo. Dejá la magia a un lado y elegí la fuerza del yunque.')
+    INSERT [dbo].[Dioses] ([IdDios], [Nombre], [FotoDios], [Dialogo]) VALUES (7, N'Hestia', N'Hestia.png', N'En medio de la guerra y el caos, la llama del hogar es lo único que permanece puro. El fuego de los demás consume, pero el mío purifica y desgasta la resistencia de las trampas. Con mi bendición, consumiremos los errores del tablero, permitiéndote fallar sin sufrir el castigo completo del enemigo. Mantené la llama encendida.')
+    INSERT [dbo].[Dioses] ([IdDios], [Nombre], [FotoDios], [Dialogo]) VALUES (8, N'Ares', N'Ares.png', N'¡La diplomacia ha terminado! Esta sala es un campo de batalla y la única salida es a través de la ruina de sus defensas. Olvidate de la paciencia o la lógica; mi bendición te otorgará una furia bélica que forzará la apertura de los candados reduciendo los requisitos del puzzle. Elegí la guerra y abrite paso.')
+    INSERT [dbo].[Dioses] ([IdDios], [Nombre], [FotoDios], [Dialogo]) VALUES (9, N'Hermes', N'Hermes.png', N'¡Hola, hola! No hay tiempo que perder, ¡el reloj corre rapidísimo! Las demás deidades se toman demasiadas pausas para actuar, pero mi poder es inmediato. Si me elegís, te daré la agilidad mental necesaria para adelantarte a las trampas y reintentar tus movimientos antes de que el servidor registre un fallo. ¡Apuremos el paso!')
+    INSERT [dbo].[Dioses] ([IdDios], [Nombre], [FotoDios], [Dialogo]) VALUES (10, N'Selene', N'Selene.png', N'La Luna observa todo desde lo alto, criatura de la noche, y conoce los secretos que los dioses del día ignoran. Mi luz argéntea no te dará fuerza, sino metamorfosis. Al invocarme, activaremos una habilidad oculta que alterará temporalmente las reglas de la sala a tu favor. Confiá en la plata de la noche.')
+    INSERT [dbo].[Dioses] ([IdDios], [Nombre], [FotoDios], [Dialogo]) VALUES (11, N'Artemisa', N'Artemisa.png', N'"No necesitás discursos largos ni templos ostentosos. Lo que necesitás es precisión implacable. Mientras los demás discuten en sus tronos, mi flecha va directo al punto crítico. Elegí mi favor y perforaremos las sub-fases más molestas, dándote un escape rápido. Movete rápido, elígeme."')
+    INSERT [dbo].[Dioses] ([IdDios], [Nombre], [FotoDios], [Dialogo]) VALUES (12, N'Atenea', N'Atenea.png', N'"La fuerza sin estrategia no es más que un despliegue vacío. Mis parientes te ofrecen caos, pero yo te ofrezco la verdad oculta tras el velo. Si aceptás mi escudo, descartaremos el error y traeremos claridad a tu mente para mirar a través de las trampas. Elegí la razón; la victoria se planifica."')
+    SET IDENTITY_INSERT [dbo].[Dioses] OFF
+END
 GO
 USE [master]
 GO
