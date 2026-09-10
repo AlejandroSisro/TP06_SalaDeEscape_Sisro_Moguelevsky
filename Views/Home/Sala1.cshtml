@@ -1,3 +1,72 @@
 @{
-    ViewData["Title"] = "Continuar";
+    ViewData["Title"] = "Encuentro divino - Juicio de los Dioses";
+}
+
+<h2>Sala 1 - Elegí tu protector</h2>
+
+@if (ViewBag.Dios1 != null && ViewBag.Dios2 != null && (ViewBag.ShowRiddle == null || ViewBag.ShowRiddle == false) && ViewBag.AnswerCorrect == null)
+{
+    <form method="post" asp-action="Sala1">
+        <input type="hidden" name="dios1Id" value="@ViewBag.Dios1.IdDios" />
+        <input type="hidden" name="dios2Id" value="@ViewBag.Dios2.IdDios" />
+        <div class="dios-list">
+            <div class="dios-card">
+                <img class="dios-img" src="/Imagenes/Personajes/@ViewBag.Dios1.FotoDios" alt="@ViewBag.Dios1.Nombre" />
+                <h3>@ViewBag.Dios1.Nombre</h3>
+                <p>@ViewBag.Dios1.Dialogo</p>
+                <p><label><input type="radio" name="elegidoId" value="@ViewBag.Dios1.IdDios" /> Elegir a @ViewBag.Dios1.Nombre</label></p>
+            </div>
+
+            <div class="dios-card">
+                <img class="dios-img" src="/Imagenes/Personajes/@ViewBag.Dios2.FotoDios" alt="@ViewBag.Dios2.Nombre" />
+                <h3>@ViewBag.Dios2.Nombre</h3>
+                <p>@ViewBag.Dios2.Dialogo</p>
+                <p><label><input type="radio" name="elegidoId" value="@ViewBag.Dios2.IdDios" /> Elegir a @ViewBag.Dios2.Nombre</label></p>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Confirmar elección</button>
+    </form>
+}
+
+@if (ViewBag.ShowRiddle == true && ViewBag.Elegido != null && ViewBag.Otro != null)
+{
+    <h3>Has elegido a @ViewBag.Elegido.Nombre</h3>
+    <p>@ViewBag.Elegido.Dialogo</p>
+    <hr />
+    <h4>@ViewBag.Otro.Nombre te propone un acertijo:</h4>
+    <p>¿Qué ser camina a cuatro patas por la mañana, a dos al mediodía y a tres por la noche?</p>
+
+    <form method="post" asp-action="ResponderEsfinge">
+        <input type="hidden" name="elegidoId" value="@ViewBag.Elegido.IdDios" />
+        <input type="hidden" name="dios1Id" value="@ViewBag.Dios1.IdDios" />
+        <input type="hidden" name="dios2Id" value="@ViewBag.Dios2.IdDios" />
+        <div class="form-group">
+            <label for="respuesta">Respuesta:</label>
+            <input type="text" name="respuesta" id="respuesta" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar respuesta</button>
+    </form>
+}
+
+@if (ViewBag.AnswerCorrect != null)
+{
+    if ((bool)ViewBag.AnswerCorrect)
+    {
+        <div class="alert alert-success">¡Correcto! Has resuelto el acertijo.</div>
+    }
+    else
+    {
+        <div class="alert alert-danger">Respuesta incorrecta. Intenta de nuevo.</div>
+        <form method="post" asp-action="ResponderEsfinge">
+            <input type="hidden" name="elegidoId" value="@ViewBag.Elegido.IdDios" />
+            <input type="hidden" name="dios1Id" value="@ViewBag.Dios1.IdDios" />
+            <input type="hidden" name="dios2Id" value="@ViewBag.Dios2.IdDios" />
+            <div class="form-group">
+                <label for="respuesta2">Respuesta:</label>
+                <input type="text" name="respuesta" id="respuesta2" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary">Reintentar</button>
+        </form>
+    }
 }
