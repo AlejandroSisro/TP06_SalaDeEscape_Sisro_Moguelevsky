@@ -63,8 +63,8 @@ public class HomeController : Controller
         {
             BD bd = new BD();
 
-            Usuario existente = bd.ObtenerUsuarioPorNombre(usuario);
-            if (existente == null)
+            Usuario usuarioActual = bd.ObtenerUsuarioPorNombre(usuario);
+            if (usuarioActual == null)
             {
                 Usuario nuevo = new Usuario
                 {
@@ -73,18 +73,11 @@ public class HomeController : Controller
                 };
 
                 bd.RegistrarUsuario(nuevo);
+                usuarioActual = nuevo;
             }
 
             HttpContext.Session.SetString("Usuario", usuario);
-
-            Usuario u = bd.ObtenerUsuarioPorNombre(usuario);
-            int salaActual = 1;
-            if (u != null)
-            {
-                salaActual = u.Sala;
-            }
-
-            HttpContext.Session.SetString("SalaActual", salaActual.ToString());
+            HttpContext.Session.SetString("SalaActual", usuarioActual.Sala.ToString());
             return RedirectToAction(nameof(Sala1));
         }
         catch
@@ -358,6 +351,7 @@ public class HomeController : Controller
         if (!string.IsNullOrWhiteSpace(respuesta))
         {
             string r = respuesta.ToLower().Replace("á", "a").Replace("é", "e").Replace("í", "i").Replace("ó", "o").Replace("ú", "u");
+            // Considerar respuestas que contengan ambas palabras: día y noche
             if (r.Contains("dia") && r.Contains("noche"))
             {
                 correctoRiddle = true;
