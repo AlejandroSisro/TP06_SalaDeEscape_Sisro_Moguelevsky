@@ -1,57 +1,26 @@
 @{
     ViewData["Title"] = "Continuar";
-
-    string usuarioSession = Context.Session.GetString("Usuario");
-
-    if (string.IsNullOrWhiteSpace(usuarioSession))
-    {
-        Context.Response.Redirect("/Home/Login");
-        return;
-    }
-
-    BD baseDatos = new BD();
-    Usuario usuarioActual = baseDatos.ObtenerUsuarioPorNombre(usuarioSession);
-
-    if (usuarioActual == null)
-    {
-        Context.Session.Clear();
-        Context.Response.Redirect("/Home/Login");
-        return;
-    }
-
-    string destino = "Sala1";
-
-    switch (usuarioActual.Sala)
-    {
-        case 1:
-            destino = "Sala1";
-            break;
-        case 2:
-            destino = "Sala2";
-            break;
-        case 3:
-            destino = "Sala3";
-            break;
-        case 4:
-            destino = "Sala4";
-            break;
-        case 5:
-            destino = "Sala5";
-            break;
-        default:
-            destino = "Sala1";
-            break;
-    }
-
-    Context.Response.Redirect($"/Home/{destino}");
-    return;
 }
 
 <div class="page-shell">
     <div class="status-panel text-center">
         <p class="eyebrow">Partida guardada</p>
         <h1>Continuar</h1>
-        <p>Redirigiendo a tu última sala...</p>
-        <a class="btn-primary" href="/Home/Index">Volver al inicio</a>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+
+        <form method="post" asp-action="Continuar" class="login-container" style="min-height:auto; padding:1.5rem 0 0.5rem; display:block;">
+            <div style="max-width:420px; margin:0 auto;">
+                <input type="text" name="usuario" placeholder="Ingresá tu nombre de usuario" value="" required style="width:100%; margin-bottom:1rem;" />
+                <button type="submit" class="btn btn-primary" style="width:100%;">Buscar partida</button>
+            </div>
+        </form>
+
+        <div style="margin-top:1rem;">
+            <a class="btn-primary" href="/Home/Index">Volver al inicio</a>
+        </div>
     </div>
 </div>
