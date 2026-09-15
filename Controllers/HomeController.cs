@@ -13,6 +13,54 @@ public class HomeController : Controller
         _configuration = configuration;
     }
 
+    private void GuardarSalaActualEnSesionYBD(string usuario, int sala)
+    {
+        int salaValida = sala;
+        if (salaValida < 1)
+        {
+            salaValida = 1;
+        }
+        else if (salaValida > 5)
+        {
+            salaValida = 1;
+        }
+
+        HttpContext.Session.SetString("SalaActual", salaValida.ToString());
+
+        if (string.IsNullOrWhiteSpace(usuario))
+        {
+            return;
+        }
+
+        try
+        {
+            BD bd = new BD();
+            Usuario usuarioActual = bd.ObtenerUsuarioPorNombre(usuario);
+            if (usuarioActual != null)
+            {
+                usuarioActual.Sala = salaValida;
+                bd.ActualizarUsuario(usuarioActual);
+            }
+        }
+        catch
+        {
+            // Ignorar error si no se pudo persistir la sala.
+        }
+    }
+
+    private string ObtenerAccionPorSala(int sala)
+    {
+        return sala switch
+        {
+            1 => nameof(Sala1),
+            2 => nameof(Medea),
+            3 => nameof(Sala3),
+            4 => nameof(Sala4),
+            5 => nameof(Sala5),
+            _ => nameof(Sala1)
+        };
+    }
+
     public IActionResult Index()
     {
         return View();
@@ -20,7 +68,24 @@ public class HomeController : Controller
 
     public IActionResult Continuar()
     {
-        return View();
+        string usuario = HttpContext.Session.GetString("Usuario");
+
+        if (string.IsNullOrWhiteSpace(usuario))
+        {
+            return RedirectToAction("Login");
+        }
+
+        BD bd = new BD();
+        Usuario usuarioActual = bd.ObtenerUsuarioPorNombre(usuario);
+
+        if (usuarioActual == null)
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login");
+        }
+
+        HttpContext.Session.SetString("SalaActual", usuarioActual.Sala.ToString());
+        return RedirectToAction(ObtenerAccionPorSala(usuarioActual.Sala));
     }
 
     public IActionResult Historia()
@@ -42,9 +107,9 @@ public class HomeController : Controller
     public IActionResult Login()
     {
         string usuario = HttpContext.Session.GetString("Usuario");
-        if (usuario != null && usuario != "")
+        if (!string.IsNullOrWhiteSpace(usuario))
         {
-            return RedirectToAction("Sala1");
+            return RedirectToAction(nameof(Continuar));
         }
 
         return View("Login");
@@ -74,11 +139,14 @@ public class HomeController : Controller
 
                 bd.RegistrarUsuario(nuevo);
                 usuarioActual = nuevo;
+                HttpContext.Session.SetString("Usuario", usuario);
+                HttpContext.Session.SetString("SalaActual", "1");
+                return RedirectToAction(nameof(Sala1));
             }
 
             HttpContext.Session.SetString("Usuario", usuario);
             HttpContext.Session.SetString("SalaActual", usuarioActual.Sala.ToString());
-            return RedirectToAction(nameof(Sala1));
+            return RedirectToAction(nameof(Continuar));
         }
         catch
         {
@@ -90,6 +158,9 @@ public class HomeController : Controller
     [HttpGet]
     public IActionResult Medea()
     {
+        string usuario = HttpContext.Session.GetString("Usuario");
+        GuardarSalaActualEnSesionYBD(usuario, 2);
+
         ViewBag.Mensaje = "";
         ViewBag.Correcto = false;
         return View("Sala2");
@@ -102,19 +173,8 @@ public class HomeController : Controller
 
         if (correcto)
         {
-            BD bd = new BD();
             string usuario = HttpContext.Session.GetString("Usuario");
-            if (!string.IsNullOrWhiteSpace(usuario))
-            {
-                Usuario user = bd.ObtenerUsuarioPorNombre(usuario);
-                if (user != null)
-                {
-                    user.Sala = 3;
-                    bd.ActualizarUsuario(user);
-                    HttpContext.Session.SetString("SalaActual", "3");
-                }
-            }
-
+            GuardarSalaActualEnSesionYBD(usuario, 3);
             return RedirectToAction("Sala3");
         }
 
@@ -125,8 +185,16 @@ public class HomeController : Controller
     }
 
     [HttpGet]
+    public IActionResult Sala2()
+    {
+        return RedirectToAction(nameof(Medea));
+    }
+
+    [HttpGet]
     public IActionResult Sala3()
     {
+        string usuario = HttpContext.Session.GetString("Usuario");
+        GuardarSalaActualEnSesionYBD(usuario, 3);
         return View();
     }
 
@@ -172,19 +240,8 @@ public class HomeController : Controller
 
         if (correcto)
         {
-            BD bd = new BD();
             string usuario = HttpContext.Session.GetString("Usuario");
-            if (!string.IsNullOrWhiteSpace(usuario))
-            {
-                Usuario user = bd.ObtenerUsuarioPorNombre(usuario);
-                if (user != null)
-                {
-                    user.Sala = 4;
-                    bd.ActualizarUsuario(user);
-                    HttpContext.Session.SetString("SalaActual", "4");
-                }
-            }
-
+            GuardarSalaActualEnSesionYBD(usuario, 4);
             return RedirectToAction("Sala4");
         }
 
@@ -197,6 +254,8 @@ public class HomeController : Controller
     [HttpGet]
     public IActionResult Sala4()
     {
+        string usuario = HttpContext.Session.GetString("Usuario");
+        GuardarSalaActualEnSesionYBD(usuario, 4);
         ViewBag.Mensaje = "";
         ViewBag.Correcto = false;
         return View();
@@ -212,19 +271,8 @@ public class HomeController : Controller
 
         if (correcto)
         {
-            BD bd = new BD();
             string usuario = HttpContext.Session.GetString("Usuario");
-            if (!string.IsNullOrWhiteSpace(usuario))
-            {
-                Usuario user = bd.ObtenerUsuarioPorNombre(usuario);
-                if (user != null)
-                {
-                    user.Sala = 5; // avanzar a la sala final
-                    bd.ActualizarUsuario(user);
-                    HttpContext.Session.SetString("SalaActual", "5");
-                }
-            }
-
+            GuardarSalaActualEnSesionYBD(usuario, 5);
             return RedirectToAction("Sala5");
         }
 
@@ -281,17 +329,7 @@ public class HomeController : Controller
         if (correcto)
         {
             string usuario = HttpContext.Session.GetString("Usuario");
-            if (usuario != null && usuario != "")
-            {
-                Usuario user = bd.ObtenerUsuarioPorNombre(usuario);
-                if (user != null)
-                {
-                    user.Sala = 2;
-                    bd.ActualizarUsuario(user);
-                    HttpContext.Session.SetString("SalaActual", "2");
-                }
-            }
-
+            GuardarSalaActualEnSesionYBD(usuario, 2);
             return RedirectToAction("Medea");
         }
 
@@ -319,6 +357,8 @@ public class HomeController : Controller
     [HttpGet]
     public IActionResult Sala5()
     {
+        string usuario = HttpContext.Session.GetString("Usuario");
+        GuardarSalaActualEnSesionYBD(usuario, 5);
         ViewBag.Mensaje = "";
         ViewBag.Correcto = false;
         return View();
@@ -327,6 +367,9 @@ public class HomeController : Controller
     [HttpGet]
     public IActionResult Sala1()
     {
+        string usuario = HttpContext.Session.GetString("Usuario");
+        GuardarSalaActualEnSesionYBD(usuario, 1);
+
         BD bd = new BD();
         List<Dioses> dioses = bd.ObtenerDiosesAleatorios(2);
         if (dioses == null || dioses.Count < 2)
@@ -351,7 +394,6 @@ public class HomeController : Controller
         if (!string.IsNullOrWhiteSpace(respuesta))
         {
             string r = respuesta.ToLower().Replace("á", "a").Replace("é", "e").Replace("í", "i").Replace("ó", "o").Replace("ú", "u");
-            // Considerar respuestas que contengan ambas palabras: día y noche
             if (r.Contains("dia") && r.Contains("noche"))
             {
                 correctoRiddle = true;
@@ -360,19 +402,8 @@ public class HomeController : Controller
 
         if (correctoRiddle)
         {
-            BD bd = new BD();
             string usuario = HttpContext.Session.GetString("Usuario");
-            if (!string.IsNullOrWhiteSpace(usuario))
-            {
-                Usuario user = bd.ObtenerUsuarioPorNombre(usuario);
-                if (user != null)
-                {
-                    user.Sala = 1; // reinicia para jugar de nuevo
-                    bd.ActualizarUsuario(user);
-                    HttpContext.Session.SetString("SalaActual", "1");
-                }
-            }
-
+            GuardarSalaActualEnSesionYBD(usuario, 1);
             return RedirectToAction("Sala1");
         }
 
