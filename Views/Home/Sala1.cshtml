@@ -1,9 +1,7 @@
 @{
     ViewData["Title"] = "Encuentro divino - Juicio de los Dioses";
 }
-
 <h2>Sala 1 - Elegí tu protector</h2>
-
 @if (ViewBag.Dios1 != null && ViewBag.Dios2 != null && (ViewBag.ShowRiddle == null || ViewBag.ShowRiddle == false) && ViewBag.AnswerCorrect == null)
 {
     <form method="post" asp-action="Sala1">
@@ -28,7 +26,6 @@
         <button type="submit" class="btn btn-primary">Confirmar elección</button>
     </form>
 }
-
 @if (ViewBag.ShowRiddle == true && ViewBag.Elegido != null && ViewBag.Otro != null)
 {
     <h3>Has elegido a @ViewBag.Elegido.Nombre</h3>
@@ -48,7 +45,6 @@
         <button type="submit" class="btn btn-primary">Enviar respuesta</button>
     </form>
 }
-
 @if (ViewBag.AnswerCorrect != null)
 {
     if ((bool)ViewBag.AnswerCorrect)
