@@ -19,31 +19,31 @@
         return;
     }
 
-    int ultimaSala = usuarioActual.Sala;
-    string destino = "/Home/Sala1";
+    string destino = "Sala1";
 
-    if (ultimaSala == 1)
+    switch (usuarioActual.Sala)
     {
-        destino = "/Home/Sala1";
-    }
-    else if (ultimaSala == 2)
-    {
-        destino = "/Home/Sala2";
-    }
-    else if (ultimaSala == 3)
-    {
-        destino = "/Home/Sala3";
-    }
-    else if (ultimaSala == 4)
-    {
-        destino = "/Home/Sala4";
-    }
-    else if (ultimaSala == 5)
-    {
-        destino = "/Home/Sala5";
+        case 1:
+            destino = "Sala1";
+            break;
+        case 2:
+            destino = "Sala2";
+            break;
+        case 3:
+            destino = "Sala3";
+            break;
+        case 4:
+            destino = "Sala4";
+            break;
+        case 5:
+            destino = "Sala5";
+            break;
+        default:
+            destino = "Sala1";
+            break;
     }
 
-    Context.Response.Redirect(destino);
+    Context.Response.Redirect($"/Home/{destino}");
     return;
 }
 
