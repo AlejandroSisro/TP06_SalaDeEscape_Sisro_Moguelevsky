@@ -68,11 +68,16 @@ public class HomeController : Controller
 
     public IActionResult Continuar()
     {
-        string usuario = HttpContext.Session.GetString("Usuario");
+        return View();
+    }
 
+    [HttpPost]
+    public IActionResult Continuar(string usuario)
+    {
         if (string.IsNullOrWhiteSpace(usuario))
         {
-            return RedirectToAction("Login");
+            ViewBag.Error = "Ingresá tu nombre de usuario para continuar.";
+            return View();
         }
 
         BD bd = new BD();
@@ -80,11 +85,13 @@ public class HomeController : Controller
 
         if (usuarioActual == null)
         {
-            HttpContext.Session.Clear();
-            return RedirectToAction("Login");
+            ViewBag.Error = "Ese usuario no existe. Probá con otro nombre de usuario.";
+            return View();
         }
 
+        HttpContext.Session.SetString("Usuario", usuarioActual.nombreUsuario);
         HttpContext.Session.SetString("SalaActual", usuarioActual.Sala.ToString());
+
         return RedirectToAction(ObtenerAccionPorSala(usuarioActual.Sala));
     }
 
@@ -109,7 +116,7 @@ public class HomeController : Controller
         string usuario = HttpContext.Session.GetString("Usuario");
         if (!string.IsNullOrWhiteSpace(usuario))
         {
-            return RedirectToAction(nameof(Continuar));
+            return RedirectToAction(nameof(Sala1));
         }
 
         return View("Login");
@@ -139,14 +146,11 @@ public class HomeController : Controller
 
                 bd.RegistrarUsuario(nuevo);
                 usuarioActual = nuevo;
-                HttpContext.Session.SetString("Usuario", usuario);
-                HttpContext.Session.SetString("SalaActual", "1");
-                return RedirectToAction(nameof(Sala1));
             }
 
             HttpContext.Session.SetString("Usuario", usuario);
-            HttpContext.Session.SetString("SalaActual", usuarioActual.Sala.ToString());
-            return RedirectToAction(nameof(Continuar));
+            HttpContext.Session.SetString("SalaActual", "1");
+            return RedirectToAction(nameof(Sala1));
         }
         catch
         {
