@@ -926,8 +926,8 @@ select option {
 }
 
 .story-character-card img {
-  width: 100%;
-  height: auto;
+  height: 50%;
+  width: auto;
   object-fit: cover;
   border-radius: 12px;
   border: 1px solid rgba(212, 175, 55, 0.25);
@@ -962,6 +962,10 @@ select option {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1.5rem;
+}
+
+#caribdis-scene .scene-header {
+  border-bottom: 1px solid #bcd8dd;
 }
 
 .scene-header h1,
@@ -999,6 +1003,7 @@ select option {
   grid-template-columns: 1fr 320px;
   gap: 2rem;
   margin-top: 1.5rem;
+  border-radius:15;
 }
 
 /* Story Panels */
@@ -1011,8 +1016,8 @@ select option {
 }
 
 .story-panel img {
-  width: 100%;
-  height: auto;
+  height: 500px;
+  width: auto;
   object-fit: cover;
   border-radius: 14px;
   border: 1px solid rgba(212, 175, 55, 0.2);
@@ -1044,6 +1049,10 @@ select option {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-bottom: 1rem;
+}
+#caribdis-scene .location-tag {
+  background: #30799e;
+  border: 1px solid #bcd8dd;
 }
 
 /* Puzzle Panels */
@@ -1103,7 +1112,10 @@ select option {
   background: #1a1825;
   color: var(--bone);
 }
-
+#caribdis-scene .console-puzzle {
+  background: #30799e;
+  border: 2px solid #bcd8dd;
+}
 /* Cauldron & Console */
 .cauldron,
 .console-puzzle {
@@ -1168,10 +1180,18 @@ select option {
   text-align: center;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
 }
+#caribdis-scene .character-frame {
+  background: linear-gradient(180deg, #6b99b0, #30799e);
+  border: 1px solid #bcd8dd;
+  border-radius: 16px;
+  padding: 1.2rem;
+  text-align: center;
+  box-shadow: 0 12px 28px #bcd8dd;
+}
 
 .character-frame img {
-  width: 100%;
-  height: auto;
+  height: 500px;
+  width: auto;
   object-fit: cover;
   border-radius: 12px;
   border: 1px solid rgba(212, 175, 55, 0.25);
@@ -1287,7 +1307,39 @@ select option {
   border-color: rgba(255, 124, 124, 0.4);
   color: #ffd7d7;
 }
-
+#Caribdis
+{
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+  border: 1px solid #E3F9FF;
+}
+.cauldron, #medea-frame img
+{
+  box-shadow: 0 0 15px 5px #990000;
+}
+#medea-frame
+{
+  border: 1px solid #990000;
+}
+#caribdis-scene
+{
+  box-shadow: 0 0 50px 12px #E3F9FF;
+  position: relative;
+  background: conic-gradient(
+    from 140deg,
+    #153243 0%,
+    #284B63 35%,
+    #4F758B 70%,
+    #284B63 85%,
+    #153243 100%
+  );
+  overflow: hidden;
+}
+#caribdis-scene h1, #caribdis-scene h2, #caribdis-scene .character-name, #caribdis-scene .char-role, #caribdis-scene .location-tag, #caribdis-scene .console-puzzle .status, #caribdis-scene .console-puzzle h3
+{
+  color: #bcd8dd;
+}
 /* Responsive */
 @media (max-width: 767px) {
   .scene-content {
