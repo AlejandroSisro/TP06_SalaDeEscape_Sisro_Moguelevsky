@@ -19,7 +19,6 @@
             <div class="puzzle-panel">
                 <h2>Acertijo alquímico</h2>
                 <p>Elegí los tres ingredientes en el orden correcto para purificar la niebla.</p>
-
                 <form method="post" action="/Home/Medea">
                     <div class="form-row">
                         <label for="ingrediente1">1. Ingrediente inicial</label>
@@ -64,7 +63,6 @@
                         <button type="submit">Activar purificación</button>
                     </div>
                 </form>
-
                 @if (ViewBag.Mensaje != null && ViewBag.Mensaje.ToString() != "")
                 {
                     if (ViewBag.Correcto == true)
@@ -88,6 +86,7 @@
                 <div class="character-name">Medea</div>
                 <div class="char-role">Bruja de las Sombras</div>
             </div>
+
             <div class="dialogue-box">
                 <p><strong>Medea:</strong> "No temáis al aire limpio. No temáis a la noche. El orden debe ser preciso: La aleacion metalica primero, luego el metal de los dioses, y finalmente la recompenza por matar a un temible monstruo. Así la niebla caerá y el camino abrirá."</p>
             </div>
