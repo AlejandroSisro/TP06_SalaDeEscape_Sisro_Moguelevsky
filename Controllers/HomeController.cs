@@ -133,23 +133,15 @@ public class HomeController : Controller
 
         try
         {
-            BD bd = new BD();
-
-            Usuario usuarioActual = bd.ObtenerUsuarioPorNombre(usuario);
+            Usuario usuarioActual = AsegurarUsuarioPersistido(usuario, 1);
             if (usuarioActual == null)
             {
-                Usuario nuevo = new Usuario
-                {
-                    nombreUsuario = usuario,
-                    Sala = 1
-                };
-
-                bd.RegistrarUsuario(nuevo);
-                usuarioActual = nuevo;
+                ViewBag.Error = "Debe ingresar un nombre de usuario válido.";
+                return View("Login");
             }
 
-            HttpContext.Session.SetString("Usuario", usuario);
-            HttpContext.Session.SetString("SalaActual", "1");
+            HttpContext.Session.SetString("Usuario", usuarioActual.nombreUsuario);
+            HttpContext.Session.SetString("SalaActual", usuarioActual.Sala.ToString());
             return RedirectToAction(nameof(Sala1));
         }
         catch
@@ -414,5 +406,36 @@ public class HomeController : Controller
         ViewBag.Mensaje = "La respuesta es incorrecta. Intentá otra vez.";
         ViewBag.Correcto = false;
         return View();
+    }
+
+    private Usuario AsegurarUsuarioPersistido(string nombreUsuario, int salaInicial = 1)
+    {
+        string nombreNormalizado = nombreUsuario?.Trim();
+        if (string.IsNullOrWhiteSpace(nombreNormalizado))
+        {
+            return null;
+        }
+
+        BD bd = new BD();
+        Usuario usuarioActual = bd.ObtenerUsuarioPorNombre(nombreNormalizado);
+
+        if (usuarioActual == null)
+        {
+            usuarioActual = new Usuario
+            {
+                nombreUsuario = nombreNormalizado,
+                Sala = salaInicial
+            };
+            bd.RegistrarUsuario(usuarioActual);
+            return usuarioActual;
+        }
+
+        if (usuarioActual.Sala < 1 || usuarioActual.Sala > 5)
+        {
+            usuarioActual.Sala = salaInicial;
+            bd.ActualizarUsuario(usuarioActual);
+        }
+
+        return usuarioActual;
     }
 }
