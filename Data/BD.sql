@@ -16,8 +16,26 @@ BEGIN
      CONSTRAINT [PK_Usuario] PRIMARY KEY CLUSTERED 
     (
         [Id] ASC
+    )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+     CONSTRAINT [UQ_Usuario_nombreUsuario] UNIQUE NONCLUSTERED 
+    (
+        [nombreUsuario] ASC
     )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
     ) ON [PRIMARY]
+END
+ELSE
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'UQ_Usuario_nombreUsuario' AND object_id = OBJECT_ID('dbo.Usuario'))
+    BEGIN
+        WITH Duplicados AS (
+            SELECT nombreUsuario, ROW_NUMBER() OVER (PARTITION BY nombreUsuario ORDER BY Id) AS Orden
+            FROM dbo.Usuario
+        )
+        DELETE FROM Duplicados WHERE Orden > 1;
+
+        CREATE UNIQUE INDEX [UQ_Usuario_nombreUsuario]
+        ON [dbo].[Usuario] ([nombreUsuario] ASC);
+    END
 END
 GO
 IF OBJECT_ID(N'[dbo].[Usuarios]', N'U') IS NOT NULL
