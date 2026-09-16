@@ -35,7 +35,7 @@ public class HomeController : Controller
         try
         {
             BD bd = new BD();
-            Usuario usuarioActual = bd.ObtenerUsuarioPorNombre(usuario);
+            Usuario usuarioActual = bd.ObtenerUsuarioPorNombre(usuario.Trim());
             if (usuarioActual != null)
             {
                 usuarioActual.Sala = salaValida;
@@ -46,6 +46,50 @@ public class HomeController : Controller
         {
             // Ignorar error si no se pudo persistir la sala.
         }
+    }
+
+    private IActionResult RedirigirUsuarioSegunSala(Usuario usuarioActual)
+    {
+        if (usuarioActual == null)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        int sala = usuarioActual.Sala;
+        if (sala < 1 || sala > 5)
+        {
+            sala = 1;
+            usuarioActual.Sala = 1;
+            new BD().ActualizarUsuario(usuarioActual);
+        }
+
+        HttpContext.Session.SetString("Usuario", usuarioActual.nombreUsuario);
+        HttpContext.Session.SetString("SalaActual", sala.ToString());
+
+        return RedirectToAction(ObtenerAccionPorSala(sala));
+    }
+
+    private Usuario ObtenerUsuarioPersistido(string nombreUsuario)
+    {
+        if (string.IsNullOrWhiteSpace(nombreUsuario))
+        {
+            return null;
+        }
+
+        BD bd = new BD();
+        Usuario usuarioActual = bd.ObtenerUsuarioPorNombre(nombreUsuario.Trim());
+        if (usuarioActual == null)
+        {
+            return null;
+        }
+
+        if (usuarioActual.Sala < 1 || usuarioActual.Sala > 5)
+        {
+            usuarioActual.Sala = 1;
+            bd.ActualizarUsuario(usuarioActual);
+        }
+
+        return usuarioActual;
     }
 
     private string ObtenerAccionPorSala(int sala)
@@ -74,25 +118,21 @@ public class HomeController : Controller
     [HttpPost]
     public IActionResult Continuar(string usuario)
     {
-        if (string.IsNullOrWhiteSpace(usuario))
+        string nombreNormalizado = usuario?.Trim();
+        if (string.IsNullOrWhiteSpace(nombreNormalizado))
         {
             ViewBag.Error = "Ingresá tu nombre de usuario para continuar.";
             return View();
         }
 
-        BD bd = new BD();
-        Usuario usuarioActual = bd.ObtenerUsuarioPorNombre(usuario);
-
+        Usuario usuarioActual = ObtenerUsuarioPersistido(nombreNormalizado);
         if (usuarioActual == null)
         {
             ViewBag.Error = "Ese usuario no existe. Probá con otro nombre de usuario.";
             return View();
         }
 
-        HttpContext.Session.SetString("Usuario", usuarioActual.nombreUsuario);
-        HttpContext.Session.SetString("SalaActual", usuarioActual.Sala.ToString());
-
-        return RedirectToAction(ObtenerAccionPorSala(usuarioActual.Sala));
+        return RedirigirUsuarioSegunSala(usuarioActual);
     }
 
     public IActionResult Historia()
@@ -116,7 +156,14 @@ public class HomeController : Controller
         string usuario = HttpContext.Session.GetString("Usuario");
         if (!string.IsNullOrWhiteSpace(usuario))
         {
-            return RedirectToAction(nameof(Sala1));
+            Usuario usuarioActual = ObtenerUsuarioPersistido(usuario);
+            if (usuarioActual != null)
+            {
+                return RedirigirUsuarioSegunSala(usuarioActual);
+            }
+
+            HttpContext.Session.Remove("Usuario");
+            HttpContext.Session.Remove("SalaActual");
         }
 
         return View("Login");
@@ -125,7 +172,8 @@ public class HomeController : Controller
     [HttpPost]
     public IActionResult Login(string usuario, string contrasena)
     {
-        if (string.IsNullOrWhiteSpace(usuario))
+        string nombreNormalizado = usuario?.Trim();
+        if (string.IsNullOrWhiteSpace(nombreNormalizado))
         {
             ViewBag.Error = "Debe ingresar un nombre de usuario.";
             return View("Login");
@@ -133,11 +181,11 @@ public class HomeController : Controller
 
         try
         {
-            Usuario usuarioActual = AsegurarUsuarioPersistido(usuario, 1);
+            Usuario usuarioActual = AsegurarUsuarioPersistido(nombreNormalizado, 1, resetSiExiste: true);
             if (usuarioActual == null)
             {
-                ViewBag.Error = "Debe ingresar un nombre de usuario válido.";
-                return View("Login");
+                // No validamos existencia acá. El login solo guarda el nombre y empieza una nueva partida.
+                usuarioActual = new Usuario { nombreUsuario = nombreNormalizado, Sala = 1 };
             }
 
             HttpContext.Session.SetString("Usuario", usuarioActual.nombreUsuario);
@@ -146,7 +194,7 @@ public class HomeController : Controller
         }
         catch
         {
-            ViewBag.Error = "No se pudo conectar con la base de datos. Verificá que SQL Server esté activo y que la base exista.";
+            ViewBag.Error = "No se pudo conectar con la base de datos. Intentá nuevamente más tarde.";
             return View("Login");
         }
     }
@@ -400,15 +448,19 @@ public class HomeController : Controller
         {
             string usuario = HttpContext.Session.GetString("Usuario");
             GuardarSalaActualEnSesionYBD(usuario, 1);
-            return RedirectToAction("Sala1");
+            ViewBag.Mensaje = "EL TIEMPO NO PUEDE SER DETENIDO";
+            ViewBag.Correcto = true;
+            ViewBag.ShowRestartOverlay = true;
+            return View();
         }
 
         ViewBag.Mensaje = "La respuesta es incorrecta. Intentá otra vez.";
         ViewBag.Correcto = false;
+        ViewBag.ShowRestartOverlay = false;
         return View();
     }
 
-    private Usuario AsegurarUsuarioPersistido(string nombreUsuario, int salaInicial = 1)
+    private Usuario AsegurarUsuarioPersistido(string nombreUsuario, int salaInicial = 1, bool resetSiExiste = false)
     {
         string nombreNormalizado = nombreUsuario?.Trim();
         if (string.IsNullOrWhiteSpace(nombreNormalizado))
@@ -427,15 +479,11 @@ public class HomeController : Controller
                 Sala = salaInicial
             };
             bd.RegistrarUsuario(usuarioActual);
-            return usuarioActual;
+            return bd.ObtenerUsuarioPorNombre(nombreNormalizado) ?? usuarioActual;
         }
 
-        if (usuarioActual.Sala < 1 || usuarioActual.Sala > 5)
-        {
-            usuarioActual.Sala = salaInicial;
-            bd.ActualizarUsuario(usuarioActual);
-        }
-
+        usuarioActual.Sala = salaInicial;
+        bd.ActualizarUsuario(usuarioActual);
         return usuarioActual;
     }
 }
