@@ -2,8 +2,12 @@
     ViewData["Title"] = "Login";
 }
 <div class="login-container">
-    <form method="post" action="/Home/Login">
-        <input type="text" name="usuario" placeholder="Usuario" />
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">@ViewBag.Error</div>
+    }
+    <form method="post" asp-action="Login">
+        <input type="text" name="usuario" placeholder="Usuario" required />
         <input type="submit" value="Iniciar sesión" />
     </form>
 </div>
