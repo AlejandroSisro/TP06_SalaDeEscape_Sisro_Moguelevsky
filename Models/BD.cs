@@ -25,6 +25,8 @@ namespace TP06_SalaDeEscape_Sisro_Moguelevsky.Models
             new Dioses { IdDios = 12, Nombre = "Atenea", FotoDios = "Atenea.png", Dialogo = "La fuerza sin estrategia no es más que un despliegue vacío. Mis parientes te ofrecen caos, pero yo te ofrezco la verdad oculta tras el velo. Si aceptás mi escudo, descartaremos el error y traeremos claridad a tu mente para mirar a través de las trampas. Elegí la razón; la victoria se planifica." }
         };
 
+        private static readonly List<Usuario> UsuariosFallback = new List<Usuario>();
+
         public BD()
         {
             _connectionString = "Server=(localdb)\\MSSQLLocalDB;Database=Hades2SalaEscape;Trusted_Connection=True;TrustServerCertificate=True;";
@@ -91,140 +93,190 @@ namespace TP06_SalaDeEscape_Sisro_Moguelevsky.Models
             return resultado;
         }
 
+        private Usuario ObtenerUsuarioEnFallback(string nombreUsuario)
+        {
+            if (string.IsNullOrWhiteSpace(nombreUsuario))
+            {
+                return null;
+            }
+
+            return UsuariosFallback.FirstOrDefault(u =>
+                string.Equals(u?.nombreUsuario, nombreUsuario.Trim(), StringComparison.OrdinalIgnoreCase));
+        }
+
+        private void GuardarUsuarioEnFallback(Usuario usuario)
+        {
+            if (usuario == null || string.IsNullOrWhiteSpace(usuario.nombreUsuario))
+            {
+                return;
+            }
+
+            Usuario existente = ObtenerUsuarioEnFallback(usuario.nombreUsuario);
+            if (existente != null)
+            {
+                existente.Sala = usuario.Sala < 1 || usuario.Sala > 5 ? 1 : usuario.Sala;
+                return;
+            }
+
+            UsuariosFallback.Add(new Usuario
+            {
+                Id = UsuariosFallback.Count + 1,
+                nombreUsuario = usuario.nombreUsuario.Trim(),
+                Sala = usuario.Sala < 1 || usuario.Sala > 5 ? 1 : usuario.Sala
+            });
+        }
+
+        private void ActualizarUsuarioEnFallback(Usuario usuario)
+        {
+            if (usuario == null || string.IsNullOrWhiteSpace(usuario.nombreUsuario))
+            {
+                return;
+            }
+
+            Usuario existente = ObtenerUsuarioEnFallback(usuario.nombreUsuario);
+            if (existente == null)
+            {
+                GuardarUsuarioEnFallback(usuario);
+                return;
+            }
+
+            existente.Sala = usuario.Sala < 1 || usuario.Sala > 5 ? 1 : usuario.Sala;
+        }
+
+        public Usuario ObtenerUsuarioPorNombre(string nombreUsuario)
+        {
+            string nombreNormalizado = nombreUsuario?.Trim();
+            if (string.IsNullOrWhiteSpace(nombreNormalizado))
+            {
+                return null;
+            }
+
+            try
+            {
+                using SqlConnection connection = new SqlConnection(_connectionString);
+                string query = @"SELECT TOP 1 Id, nombreUsuario, Sala 
+                                 FROM Usuario 
+                                 WHERE LOWER(LTRIM(RTRIM(nombreUsuario))) = LOWER(@pNombreUsuario)";
+                Usuario usuario = connection.QueryFirstOrDefault<Usuario>(query, new { pNombreUsuario = nombreNormalizado });
+                if (usuario != null)
+                {
+                    return usuario;
+                }
+            }
+            catch
+            {
+                // Fallback a memoria si la BD no responde.
+            }
+
+            return ObtenerUsuarioEnFallback(nombreNormalizado);
+        }
+
+        public void RegistrarUsuario(Usuario usuario)
+        {
+            if (usuario == null)
+            {
+                return;
+            }
+
+            string nombreNormalizado = usuario.nombreUsuario?.Trim();
+            if (string.IsNullOrWhiteSpace(nombreNormalizado))
+            {
+                return;
+            }
+
+            usuario.nombreUsuario = nombreNormalizado;
+            usuario.Sala = usuario.Sala < 1 || usuario.Sala > 5 ? 1 : usuario.Sala;
+
+            try
+            {
+                using SqlConnection connection = new SqlConnection(_connectionString);
+                string queryExiste = @"SELECT COUNT(1) FROM Usuario WHERE nombreUsuario = @pNombreUsuario";
+                int existe = connection.ExecuteScalar<int>(queryExiste, new { pNombreUsuario = nombreNormalizado });
+
+                if (existe > 0)
+                {
+                    string queryUpdate = @"UPDATE Usuario SET Sala = @pSala WHERE nombreUsuario = @pNombreUsuario";
+                    connection.Execute(queryUpdate, new { pNombreUsuario = nombreNormalizado, pSala = usuario.Sala });
+                    ActualizarUsuarioEnFallback(usuario);
+                    return;
+                }
+
+                string queryInsert = @"INSERT INTO Usuario (nombreUsuario, Sala) VALUES (@pNombreUsuario, @pSala)";
+                connection.Execute(queryInsert, new
+                {
+                    pNombreUsuario = nombreNormalizado,
+                    pSala = usuario.Sala
+                });
+                GuardarUsuarioEnFallback(usuario);
+            }
+            catch
+            {
+                GuardarUsuarioEnFallback(usuario);
+            }
+        }
+
+        public void ActualizarUsuario(Usuario usuario)
+        {
+            if (usuario == null)
+            {
+                return;
+            }
+
+            string nombreNormalizado = usuario.nombreUsuario?.Trim();
+            if (string.IsNullOrWhiteSpace(nombreNormalizado))
+            {
+                return;
+            }
+
+            usuario.nombreUsuario = nombreNormalizado;
+            usuario.Sala = usuario.Sala < 1 || usuario.Sala > 5 ? 1 : usuario.Sala;
+
+            try
+            {
+                using SqlConnection connection = new SqlConnection(_connectionString);
+                string query = @"UPDATE Usuario SET Sala = @pSala WHERE nombreUsuario = @pNombreUsuario";
+                connection.Execute(query, new
+                {
+                    pNombreUsuario = nombreNormalizado,
+                    pSala = usuario.Sala
+                });
+            }
+            catch
+            {
+                // Si la BD falla, seguimos persisting en memoria.
+            }
+
+            ActualizarUsuarioEnFallback(usuario);
+        }
+
         public List<Usuario> ObtenerTodosLosUsuarios()
         {
             try
             {
                 using SqlConnection connection = new SqlConnection(_connectionString);
                 string query = "SELECT Id, nombreUsuario, Sala FROM Usuario";
-                return connection.Query<Usuario>(query).ToList();
+                List<Usuario> usuarios = connection.Query<Usuario>(query).ToList();
+                if (usuarios != null && usuarios.Count > 0)
+                {
+                    return usuarios;
+                }
             }
             catch
             {
-                return new List<Usuario>();
-            }
-        }
-
-        public Usuario ObtenerUsuarioPorNombre(string nombreUsuario)
-        {
-            if (string.IsNullOrWhiteSpace(nombreUsuario))
-            {
-                return null;
+                // Ignorar y usar fallback.
             }
 
-            try
-            {
-                using SqlConnection connection = new SqlConnection(_connectionString);
-                string query = @"SELECT Id, nombreUsuario, Sala FROM Usuario WHERE nombreUsuario = @pNombreUsuario";
-                return connection.QueryFirstOrDefault<Usuario>(query, new { pNombreUsuario = nombreUsuario });
-            }
-            catch
-            {
-                return null;
-            }
+            return UsuariosFallback.ToList();
         }
 
         public bool ValidarCredenciales(string nombreUsuario, string contraseña)
         {
-            return true;
-        }
-
-        public void RegistrarUsuario(Usuario usuario)
-        {
-            if (usuario == null || string.IsNullOrWhiteSpace(usuario.nombreUsuario))
-            {
-                return;
-            }
-
-            try
-            {
-                using SqlConnection connection = new SqlConnection(_connectionString);
-                string query = @"INSERT INTO Usuario (nombreUsuario, Sala) VALUES (@pNombreUsuario, @pSala)";
-                connection.Execute(query, new
-                {
-                    pNombreUsuario = usuario.nombreUsuario,
-                    pSala = usuario.Sala
-                });
-            }
-            catch
-            {
-                // Ignorar fallo de inserción si la base no está disponible.
-            }
-        }
-
-        public void ActualizarUsuario(Usuario usuario)
-        {
-            if (usuario == null || string.IsNullOrWhiteSpace(usuario.nombreUsuario))
-            {
-                return;
-            }
-
-            try
-            {
-                using SqlConnection connection = new SqlConnection(_connectionString);
-                string query = @"UPDATE Usuario SET Sala = @pSala WHERE nombreUsuario = @pNombreUsuario";
-                connection.Execute(query, new
-                {
-                    pNombreUsuario = usuario.nombreUsuario,
-                    pSala = usuario.Sala
-                });
-            }
-            catch
-            {
-                // Ignorar fallo de actualización si la base no está disponible.
-            }
-        }
-
-        public void ActualizarSalaUsuario(string nombreUsuario, int sala)
-        {
             if (string.IsNullOrWhiteSpace(nombreUsuario))
-            {
-                return;
-            }
-
-            try
-            {
-                using SqlConnection connection = new SqlConnection(_connectionString);
-                string query = @"UPDATE Usuario SET Sala = @pSala WHERE nombreUsuario = @pNombreUsuario";
-                connection.Execute(query, new { pNombreUsuario = nombreUsuario, pSala = sala });
-            }
-            catch
-            {
-                // Ignorar fallo de actualización si la base no está disponible.
-            }
-        }
-
-        public void EliminarUsuario(string nombreUsuario)
-        {
-            if (string.IsNullOrWhiteSpace(nombreUsuario))
-            {
-                return;
-            }
-
-            try
-            {
-                using SqlConnection connection = new SqlConnection(_connectionString);
-                string query = @"DELETE FROM Usuario WHERE nombreUsuario = @pNombreUsuario";
-                connection.Execute(query, new { pNombreUsuario = nombreUsuario });
-            }
-            catch
-            {
-                // Ignorar fallo de borrado si la base no está disponible.
-            }
-        }
-
-        private bool TieneConexionDisponible()
-        {
-            try
-            {
-                using SqlConnection connection = new SqlConnection(_connectionString);
-                connection.Open();
-                return true;
-            }
-            catch
             {
                 return false;
             }
+
+            return ObtenerUsuarioPorNombre(nombreUsuario.Trim()) != null;
         }
     }
 }
