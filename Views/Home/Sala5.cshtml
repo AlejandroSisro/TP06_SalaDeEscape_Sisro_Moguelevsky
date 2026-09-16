@@ -66,6 +66,20 @@
     </div>
 </div>
 
+@if (ViewBag.ShowRestartOverlay == true)
+{
+    <div id="restart-overlay" style="position:fixed; inset:0; background:rgba(12, 12, 14, 0.72); display:flex; align-items:center; justify-content:center; z-index:9999;">
+        <div style="text-align:center; color:#D4AF37; background:rgba(20, 20, 22, 0.9); border:2px solid rgba(212, 175, 55, 0.6); border-radius:18px; padding:2.5rem 3rem; box-shadow:0 0 24px rgba(212, 175, 55, 0.25); max-width:760px; width:90%;">
+            <h1 style="font-size: clamp(2rem, 5vw, 4rem); font-weight:900; letter-spacing:0.08em; margin:0 0 1rem; color:#D4AF37; text-transform:uppercase;">
+                EL TIEMPO NO PUEDE SER DETENIDO
+            </h1>
+            <div style="font-size: clamp(1.15rem, 2vw, 1.8rem); color:#f1d97a; letter-spacing:0.08em; text-transform:uppercase;">
+                Reiniciando odisea
+            </div>
+        </div>
+    </div>
+}
+
 <style>
     .cronos-scene {
         --cronos-accent: #D4AF37;
@@ -120,6 +134,13 @@ document.addEventListener('DOMContentLoaded', function(){
         hintBtn.addEventListener('click', function(){
             alert('Pista: Segun los dioses no son hermanas, una madre e hija que se suceden en el ciclo del tiempo, Nix y Hemera');
         });
+    }
+
+    var overlay = document.getElementById('restart-overlay');
+    if (overlay) {
+        setTimeout(function () {
+            window.location.href = '/Home/Sala1';
+        }, 2600);
     }
 });
 </script>
